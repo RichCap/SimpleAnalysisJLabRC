@@ -786,10 +786,10 @@ void simpleAnaLC(){
   // fitT->SetParLimits(2,0.08757*0.8,0.08757*1.2);
 
   TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.2);
-  fitT->SetParameter(p1,0.9774);
-  fitT->SetParLimits(p1,0.9774*0.8,0.9774*1.2);
-  fitT->SetParameter(p2,0.08757);
-  fitT->SetParLimits(p2,0.08757*0.8,0.08757*1.2);
+  fitT->SetParameter(1,0.9774);
+  fitT->SetParLimits(1,0.9774*0.8,0.9774*1.2);
+  fitT->SetParameter(2,0.08757);
+  fitT->SetParLimits(2,0.08757*0.8,0.08757*1.2);
   
 
 
