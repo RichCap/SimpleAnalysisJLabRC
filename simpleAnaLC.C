@@ -77,6 +77,13 @@ vector<double> wHisto_RangeAll[10];
 //Below is for splitting eBeam up by Theta and Sector (search out_tree_BE to comment out of code)
 vector<double> BEThetaSector[8][6];
 
+
+//Below is for tracking the proton data (Cal is for calculated values and M is for values measured values from the detector)
+vector<double> proThetaCal[7];
+vector<double> proThetaM[7];
+
+
+
 double kin_Q2(TLorentzVector ele, float Ebeam){
   TLorentzVector beam(0,0,Ebeam,Ebeam);
   TLorentzVector target(0,0,0,0.93827);
@@ -279,6 +286,16 @@ void simpleAnaLC(){
   }
 
 
+  //Below is to contain the proton angle data
+  TTree out_tree_Pro_Theta("out_tree_Pro_Theta","out_tree_Pro_Theta");
+  for(int i=0;i<6;i++){
+    out_tree_Pro_Theta.Branch(Form("Pro_Theta_Cal_Sec_%d",i+1),&proThetaCal[i]);
+    out_tree_Pro_Theta.Branch(Form("Pro_Theta_Measured_Sec_%d",i+1),&proThetaM[i]);
+  }
+  out_tree_Pro_Theta.Branch("Pro_Theta_Cal_All",&proThetaCal[6]);
+  out_tree_Pro_Theta.Branch("Pro_Theta_Measured_All",&proThetaM[6]);
+
+
 
   hipo::event event;
   hipo::bank PART(factory.getSchema("REC::Particle"));
@@ -322,10 +339,13 @@ void simpleAnaLC(){
       p4_ele_pPh[i].clear();
       SFvector[i].clear();
       SFmomentumVector[i].clear();
+      proThetaCal[i].clear();
+      proThetaM[i].clear();
     }
     SFvector[6].clear();
     SFmomentumVector[6].clear();
-
+    proThetaCal[6].clear();
+    proThetaM[6].clear();
 
     for(int i=0;i<10;i++){
       wHisto_RangeAll[i].clear();
@@ -418,7 +438,7 @@ void simpleAnaLC(){
 
 
 	  //if (el.P() > 1.5){
-	    
+	  //Below is used to calculate the beam energy using the proton angle
 	  if(ProOelQ2==1){       	      
 	    if(idP == 2212 && statusP > 999 && statusP < 5000 && partSize > 0 && chargeP == 1 && PART.getFloat("vz",proSearch) > -10 && PART.getFloat("vz",proSearch) < 5){
 	      pro.SetXYZM(PART.getFloat("px",proSearch), PART.getFloat("py",proSearch), PART.getFloat("pz",proSearch), db->GetParticle(2212)->Mass());
@@ -430,7 +450,21 @@ void simpleAnaLC(){
 	      ProOelQ1=0;
 	    }
 	  }
+	  //End of the beam energy calculations via proton angle
+
+	  //Below is for storing proton angle values
+	  if(idP == 2212 && statusP > 999 && statusP < 5000 && partSize > 0 && chargeP == 1 && PART.getFloat("vz",proSearch) > -10 && PART.getFloat("vz",proSearch) < 5){
+	    pro.SetXYZM(PART.getFloat("px",proSearch), PART.getFloat("py",proSearch), PART.getFloat("pz",proSearch), db->GetParticle(2212)->Mass());
+	    proThetaM[secNum-1].push_back(pro.Theta()*180/PI);
+	    proThetaM[6].push_back(pro.Theta()*180/PI);
+	  }
+	  double proTHETA = TMath::ATan((db->GetParticle(2212)->Mass())/(((db->GetParticle(2212)->Mass())+pred_e_beam_from_angles)*TMath::Tan(el.Theta()/2)));
+	  proThetaCal[secNum-1].push_back(proTHETA*180/PI);
+	  proThetaCal[6].push_back(proTHETA*180/PI);
+	  //End of storing proton angle values           
+
 	  //if (el.P() > 1.5){
+	  //Below is for storing beam energy values
 	  if (el.P() > 0){  
 	    if(ProOelQ1==1){
 	      if(kin_W(el, eBeam)<1.2){
@@ -676,6 +710,7 @@ void simpleAnaLC(){
 	//out_tree_wHisto_Range_Secs.Fill();
 	out_tree_SF_sec.Fill();
 	out_tree_BE.Fill();
+	out_tree_Pro_Theta.Fill();
       }
     }
     else {
@@ -696,7 +731,7 @@ void simpleAnaLC(){
   TCanvas *W_Range = new TCanvas("W_Range","w in different ranges of Q2 for all sectors",200,10,1000,980);
   W_Range->Divide(4,3);   
   TLegend *legendWR;
-  legendWR= new TLegend(4,4,4,4);
+  legendWR= new TLegend(2,2,2,2);
   for(int n=0;n<12;n++){
     W_Range->cd(n+1);
     if(n<11){
@@ -744,15 +779,24 @@ void simpleAnaLC(){
   // Cutf2->SetLineColor(kPink);     
   // Cutf3->SetLineColor(kGreen);                                                                                                                                                                          
 
-  TF1 *fitT = new TF1("fitT","[amp]*gaus(x,[Mean],{Sigma])+[p0]+[p1]*x+[p2]*x*x",0,1.2);
-  fitT->SetParameter(1,0.9774);
-  fitT->SetParLimits(1,0.9774*0.8,0.9774*1.2);
-  fitT->SetParameter(2,0.08757);
-  fitT->SetParLimits(2,0.08757*0.8,0.08757*1.2);
+  // TF1 *fitT = new TF1("fitT","[amp]*gaus(x,[Mean],[Sigma])+[p0]+[p1]*x+[p2]*x*x",0,1.2);
+  // fitT->SetParameter(1,0.9774);
+  // fitT->SetParLimits(1,0.9774*0.8,0.9774*1.2);
+  // fitT->SetParameter(2,0.08757);
+  // fitT->SetParLimits(2,0.08757*0.8,0.08757*1.2);
+
+  TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.2);
+  fitT->SetParameter(p1,0.9774);
+  fitT->SetParLimits(p1,0.9774*0.8,0.9774*1.2);
+  fitT->SetParameter(p2,0.08757);
+  fitT->SetParLimits(p2,0.08757*0.8,0.08757*1.2);
   
+
+
   //Below is applying the fits for the electron scattering                                                                                                                                                 
   wHistoCut2->Fit("fitT");
-  gStyle->SetOptFit(1111111);
+  //gStyle->SetOptFit(1111111);
+  
   // wHistoCut2->Fit("gaus","R",0,0.8, 1.08); 
   // wHistoCut2->Fit("Cutf1","R+");                                                                                                                                                                       
   // wHistoCut2->Fit("Cutf2","R++");
@@ -761,7 +805,8 @@ void simpleAnaLC(){
 
   //For the full histogram                                                                                                                                                                                 
   wHisto2->Fit("fitT");
-  gStyle->SetOptFit(1111111);
+  //gStyle->SetOptFit(1111111);
+  
   // wHisto2->Fit("gaus","R",0,0.8, 1.08);                                                                                                                                                                 
   // wHisto2->Fit("Cutf1","R+");                                                                                                                                                                           
   // wHisto2->Fit("Cutf2","R++");                                                                                                                                                                          
@@ -867,22 +912,30 @@ void simpleAnaLC(){
 
   //Below is a test of working with vectors/trees to make 2D histograms
   TH2F *SFH = new TH2F("SFH", "Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
-  TH2F *SFHsec[6];
-  for(int i=0;i<6;i++){
-    SFHsec[i]= new TH2F(Form("SFHsec_%d_(vec)",i+1), Form("SF vs Momentum (Sector %d) (Made from vectors)",i+1), 600, 0, 12,  50, 0, 0.5);
-    SFHsec[i]->GetYaxis()->SetTitle("Sampling Fraction");
-    SFHsec[i]->GetXaxis()->SetTitle("Momentum (GeV)");
-    //SFHsec[i]->SetTitle(Form("Sampling Fraction vs Momentum for Sector %d",i+1));
-    //out_tree_SF_sec.Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec_%d_(vec)",i+1,i+1,i+1),"","colz");
-  }
+  // TH2F *SFHsec[6];
+  // for(int i=0;i<6;i++){
+  //   SFHsec[i]= new TH2F(Form("SFHsec_%d_(vec)",i+1), Form("SF vs Momentum (Sector %d) (Made from vectors)",i+1), 600, 0, 12,  50, 0, 0.5);
+  //   SFHsec[i]->GetYaxis()->SetTitle("Sampling Fraction");
+  //   SFHsec[i]->GetXaxis()->SetTitle("Momentum (GeV)");
+  //   //SFHsec[i]->SetTitle(Form("Sampling Fraction vs Momentum for Sector %d",i+1));
+  //   //out_tree_SF_sec.Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec_%d_(vec)",i+1,i+1,i+1),"","colz");
+  // }
   //out_tree_SF_sec.Branch("Sampling_Fraction_2DAll",&SFH);
   out_tree_SF_sec.Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
-  out_tree_SF_sec.Draw("Sampling_Fraction_Sec_1:Momentum_for_Sec_1>> SFHsec_1_(vec)","","colz");
-  out_tree_SF_sec.Draw("Sampling_Fraction_Sec_2:Momentum_for_Sec_2>> SFHsec_2_(vec)","","colz");
-  out_tree_SF_sec.Draw("Sampling_Fraction_Sec_3:Momentum_for_Sec_3>> SFHsec_3_(vec)","","colz");
-  out_tree_SF_sec.Draw("Sampling_Fraction_Sec_4:Momentum_for_Sec_4>> SFHsec_4_(vec)","","colz");
-  out_tree_SF_sec.Draw("Sampling_Fraction_Sec_5:Momentum_for_Sec_5>> SFHsec_5_(vec)","","colz");
-  out_tree_SF_sec.Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHsec_6_(vec)","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_1:Momentum_for_Sec_1>> SFHsec_1_(vec)","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_2:Momentum_for_Sec_2>> SFHsec_2_(vec)","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_3:Momentum_for_Sec_3>> SFHsec_3_(vec)","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_4:Momentum_for_Sec_4>> SFHsec_4_(vec)","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_5:Momentum_for_Sec_5>> SFHsec_5_(vec)","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHsec_6_(vec)","","colz");
+
+
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_1:Momentum_for_Sec_1>> SFHsec[0]","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_2:Momentum_for_Sec_2>> SFHsec[1]","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_3:Momentum_for_Sec_3>> SFHsec[2]","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_4:Momentum_for_Sec_4>> SFHsec[3]","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_5:Momentum_for_Sec_5>> SFHsec[4]","","colz");
+  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHsec[5]","","colz");
 
 
   out->Write();
@@ -927,7 +980,7 @@ void simpleAnaLC(){
   //out_tree_SF_sec->Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
   for(int i=0;i<6;i++){
     SFHistoSec[i]->Write();
-    SFHsec[i]->Write();
+    //SFHsec[i]->Write();
     //out_tree_SF_sec.Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec[%d]",i+1,i+1,i),"","colz");
     //out_tree_SF_sec->Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec[%d]",i+1,i+1,i),"","colz");
   }
