@@ -29,12 +29,11 @@ double PI= 3.14159265358979323846;
 
 void histobuilderR(){
 
-  //Below is MINE                                                                                                                                                                         
+  //Preparing Code                                                                                                                                                                         
   int OutFileNum=17;
   
   TString inputFile;
-  //TString outputFile = Form("test%d.root",OutFileNum);
-  
+ 
   for(Int_t i=1;i<gApplication->Argc();i++){
     TString opt=gApplication->Argv(i);
     if((opt.Contains(".root"))){
@@ -58,17 +57,35 @@ void histobuilderR(){
   }
 
 
+
+  //////// Making new out file ////////// 
+  TString outputFile = Form("histotest%d.root",OutFileNum);
+  TFile *outH;
+  outH = new TFile(outputFile, "RECREATE");
+
+
+
+
+  ////////////////////////////////////////
+
+
   std::cout<<"Opening Program"<<std::endl;
+
+  TFile *InF=new TFile(inputFile);
+  TTree *SF_sec=(TTree*)InF->Get("out_tree_SF_sec"); 
+
+
+
+  //////// Making new out file //////////
+  // TFile *outH;
+  // outH = new TFile(outputFile, "RECREATE");
+
+  // TTree SamplingFraction("SamplingFraction","SamplingFraction");
+
   
-  TFile *f=new TFile(inputFile);
-  TTree *SF_sec=(TTree*)f->Get("out_tree_SF_sec"); 
+  //////// Making histograms //////////// 
 
   TH2F *SFH = new TH2F("SFH", "Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
-
-
-  TCanvas *SFall = new TCanvas("SFall","Sampling Fraction Histogram (All Sectors)",200,10,700,780);
-  SFall->cd();
-  SF_sec->Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
 
   TH2F *SFHs1 = new TH2F("SFHs1", "Sampling Fraction versus Momentum Histogram (Sec 1)", 600, 0, 12,  50, 0, 0.5);
   TH2F *SFHs2 = new TH2F("SFHs2", "Sampling Fraction versus Momentum Histogram (Sec 2)", 600, 0, 12,  50, 0, 0.5);
@@ -76,6 +93,36 @@ void histobuilderR(){
   TH2F *SFHs4 = new TH2F("SFHs4", "Sampling Fraction versus Momentum Histogram (Sec 4)", 600, 0, 12,  50, 0, 0.5);
   TH2F *SFHs5 = new TH2F("SFHs5", "Sampling Fraction versus Momentum Histogram (Sec 5)", 600, 0, 12,  50, 0, 0.5);
   TH2F *SFHs6 = new TH2F("SFHs6", "Sampling Fraction versus Momentum Histogram (Sec 6)", 600, 0, 12,  50, 0, 0.5);
+
+
+
+  //////// Filling histograms //////////// 
+  // vector<double> SFALLsf;
+  // vector<double> SFALLmom;
+  // SFALLsf=(TTree*)SF_sec->Get("Sampling_Fraction_All");
+  // SFALLmom=(TTree*)SF_sec->Get("Momentum_for_All");
+
+  // SFH->Fill(SFALLsf,SFALLmom);
+
+
+  ///// Making/Filling Branches //////////
+
+  // SamplingFraction.Branch("SF_All_Secs",&SFH,);
+  // SamplingFraction.Branch("SF_Sec_1",&SFHs1);
+  // SamplingFraction.Branch("SF_Sec_2",&SFHs2);
+  // SamplingFraction.Branch("SF_Sec_3",&SFHs3);
+  // SamplingFraction.Branch("SF_Sec_4",&SFHs4);
+  // SamplingFraction.Branch("SF_Sec_5",&SFHs5);
+  // SamplingFraction.Branch("SF_Sec_6",&SFHs6);
+
+
+
+  ///// Making/Filling Canvases //////////
+
+  TCanvas *SFall = new TCanvas("SFall","Sampling Fraction Histogram (All Sectors)",200,10,700,780);
+  SFall->cd();
+  SF_sec->Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
+
 
   TCanvas *SFsecs = new TCanvas("SFsecs","Sampling Fraction Histograms (by sector)",200,10,700,780);
   SFsecs->Divide(3,2);
@@ -92,11 +139,23 @@ void histobuilderR(){
   SFsecs->cd(6);
   SF_sec->Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHs6","","colz");
 
+
+
+
+  /////// Saving PDFs and outfile /////////
+  
+  outH->Write();
+  outH->mkdir("Example");
+  outH->cd("Example");
+  SFall->Write();
+  SFsecs->Write();
+  
   SFall->SaveAs("SFall.pdf","pdf");
   SFsecs->SaveAs("SFsecs.pdf","pdf");
 
 
-  //Organizing PDFs                                                                                                                                                                                        
+
+  ////////// Organizing PDFs  /////////////                                                                                                                                                                                      
   system("ls");
   system("mkdir PDFs_from_root/");
   system(Form("mkdir PDFs_from_root/From_test%d",OutFileNum));
@@ -104,6 +163,7 @@ void histobuilderR(){
   system("ls");
 
 
+  //End of code
   auto finish = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = finish - start;
   std::cout << "Elapsed time: " << elapsed.count()<< " s \n";

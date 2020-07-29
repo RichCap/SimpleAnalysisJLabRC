@@ -1,9 +1,14 @@
 # SimpleAnalysisJLabRC
-This is my code for analyzing the hipo file data
+This is the notes on my code for analyzing the hipo file data
+
+
+Most Recent Changes:
+* Added more to simpleAnaLC.C for momentum corrections
+* Made histobuilderR.C more capable for creating histograms from root file
+* histobuilderR.C now creates new root file like simpleAnaLC.C did but with just canvases instead of tree branches 
 
 
 Instructions on running:
-
 1) Use ./toConvert.sh to have simpleAnaLC.C begin processing data.
 Note: toConvert.sh uses a hipo file that has been pre-determined. See the code for the hipo files name and location.
 2) Wait for simpleAnaLC.C to finish creating a new root file.

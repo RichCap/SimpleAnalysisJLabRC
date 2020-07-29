@@ -39,8 +39,11 @@ vector<double> p4_ele_vz;
 vector<double> p4_ele_E;
 
 //Below is MINE
-vector<double> p4_ele_p_Sec[6];
-  
+//vector<double> p4_ele_p_Sec[6];
+
+vector<double> el_p_Measured[6];  
+vector<double> el_p_Calculated[6];
+
 vector<double> p4_ele_pR[6];
 vector<double> p4_ele_pTh[6];
 vector<double> p4_ele_pPh[6];
@@ -48,6 +51,10 @@ vector<double> p4_ele_pPh[6];
 TH1F *wHisto = new TH1F("wHisto", "wHisto", 1000, 0, 5);
 TH1F *q2Histo = new TH1F("q2Histo", "q2Histo", 1000, 0, 10);
 TH2F *wq2Histo = new TH2F("wq2Histo", "wq2Histo",  1000, 0, 5,  1000, 0, 10);
+
+vector<double> wHistoV[7];
+vector<double> q2HistoV[7];
+
 double kin_W(TLorentzVector ele, float Ebeam){
   TLorentzVector beam(0,0,Ebeam,Ebeam);
   TLorentzVector target(0,0,0,0.93827);
@@ -233,9 +240,16 @@ void simpleAnaLC(){
 
 
   //Below is MINE
-  TTree out_tree_p_Sectors("out_tree_p_Sectors","out_tree_p_Sectors");
+  // TTree out_tree_p_Sectors("out_tree_p_Sectors","out_tree_p_Sectors");
+  // for(int i=0;i<6;i++){
+  //   out_tree_p_Sectors.Branch(Form("p4_ele_p_Sec_%d",i+1),&p4_ele_p_Sec[i]);
+  // }
+
+  TTree out_tree_electron_momentum("out_tree_electron_momentum","out_tree_electron_momentum");
   for(int i=0;i<6;i++){
-    out_tree_p_Sectors.Branch(Form("p4_ele_p_Sec_%d",i+1),&p4_ele_p_Sec[i]);
+    out_tree_electron_momentum.Branch(Form("el_p_Measured_Sec_%d",i+1),&el_p_Measured[i]);
+    out_tree_electron_momentum.Branch(Form("el_p_Calculated_Sec_%d",i+1),&el_p_Calculated[i]);
+
   }
 
 
@@ -297,6 +311,14 @@ void simpleAnaLC(){
 
 
 
+  TTree out_tree_w_and_q2("out_tree_w_and_q2","out_tree_w_and_q2");
+  for(int i=0;i<6;i++){
+    out_tree_w_and_q2.Branch(Form("wHistoV_Sec_%d",i+1),&wHistoV[i]);
+    out_tree_w_and_q2.Branch(Form("q2HistoV_Sec_%d",i+1),&q2HistoV[i]);
+  }
+  out_tree_w_and_q2.Branch("wHistoV",&wHistoV[6]);
+  out_tree_w_and_q2.Branch("q2HistoV",&q2HistoV[6]);
+
   hipo::event event;
   hipo::bank PART(factory.getSchema("REC::Particle"));
   hipo::bank PartCalorimeter(factory.getSchema("REC::Calorimeter"));
@@ -333,7 +355,10 @@ void simpleAnaLC(){
 
     //Below is MINE
     for(int i=0;i<6;i++){
-      p4_ele_p_Sec[i].clear();
+      //p4_ele_p_Sec[i].clear();
+      el_p_Measured[i].clear();
+      el_p_Calculated[i].clear();
+
       p4_ele_pR[i].clear();
       p4_ele_pTh[i].clear();
       p4_ele_pPh[i].clear();
@@ -341,11 +366,15 @@ void simpleAnaLC(){
       SFmomentumVector[i].clear();
       proThetaCal[i].clear();
       proThetaM[i].clear();
+      wHistoV[i].clear();
+      q2HistoV[i].clear();
     }
     SFvector[6].clear();
     SFmomentumVector[6].clear();
     proThetaCal[6].clear();
     proThetaM[6].clear();
+    wHistoV[6].clear();
+    q2HistoV[6].clear();
 
     for(int i=0;i<10;i++){
       wHisto_RangeAll[i].clear();
@@ -553,7 +582,11 @@ void simpleAnaLC(){
        	    q2Histo->Fill(kin_Q2(el, eBeam));
        	    wq2Histo->Fill(kin_W(el, eBeam), kin_Q2(el, eBeam));
        	    
-       	    
+	    wHistoV[secNum-1].push_back(kin_W(el, eBeam));
+	    wHistoV[6].push_back(kin_W(el, eBeam));
+	    q2HistoV[secNum-1].push_back(kin_Q2(el, eBeam));       	    
+            q2HistoV[6].push_back(kin_Q2(el, eBeam));
+
        	    //Below is MINE
 	    p4_ele_pR[secNum-1].push_back(el.P());
        	    p4_ele_pTh[secNum-1].push_back(el.Theta()*180/PI);
@@ -563,9 +596,15 @@ void simpleAnaLC(){
        	      wHistoCut2->Fill(kin_W(el, eBeam));
        	    }
             wHisto2->Fill(kin_W(el,eBeam));
+	    
+	    //electron momentum calculation
+	    double elPcal;
+	    elPcal=eBeam/(1+((2*eBeam*TMath::Sin(el.Theta()/2)*TMath::Sin(el.Theta()/2))/(db->GetParticle(2212)->Mass())));
 
        	    if(el.E() > 0){
-       	      p4_ele_p_Sec[secNum-1].push_back(el.P());
+       	      //p4_ele_p_Sec[secNum-1].push_back(el.P());
+	      el_p_Measured[secNum-1].push_back(el.P());
+	      el_p_Calculated[secNum-1].push_back(elPcal);
        	    }
        	    ThetaVPHisto->Fill(el.P(),el.Theta()*180/PI);
        	    
@@ -703,7 +742,8 @@ void simpleAnaLC(){
 	//} 
 	out_tree.Fill();
 	//Below is MINE
-	out_tree_p_Sectors.Fill();
+	//out_tree_p_Sectors.Fill();
+	out_tree_electron_momentum.Fill();
 	out_tree_p_Polar.Fill();
 	//out_tree_wHisto_Range.Fill();
 	out_tree_wHisto_Range_All.Fill();
@@ -711,6 +751,7 @@ void simpleAnaLC(){
 	out_tree_SF_sec.Fill();
 	out_tree_BE.Fill();
 	out_tree_Pro_Theta.Fill();
+	out_tree_w_and_q2.Fill();
       }
     }
     else {

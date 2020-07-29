@@ -10,7 +10,7 @@ source /group/clas12/packages/setup.csh
 module load clas12/pro
 #module list
 
-echo $1
+echo "Now loading file: "$1
 
 #Rfile=$(ls -A /u/home/richcap/Code_Example/SimpleAnalysisJLabRC/$1)
 #echo $Rfile
