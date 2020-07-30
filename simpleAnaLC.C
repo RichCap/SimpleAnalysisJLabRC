@@ -43,6 +43,7 @@ vector<double> p4_ele_E;
 
 vector<double> el_p_Measured[6];  
 vector<double> el_p_Calculated[6];
+vector<double> el_p_Difference[6];
 
 vector<double> p4_ele_pR[6];
 vector<double> p4_ele_pTh[6];
@@ -65,9 +66,9 @@ double kin_W(TLorentzVector ele, float Ebeam){
 
 
 //Below is MINE
-TH2F *ThetaVPHisto = new TH2F("ThetaVPHisto", "Theta versus Momentum Histogram",  1200, 0, 12,  45, 0, 45);
-TH2F *PhiVPHisto = new TH2F("PhiVPHisto", "Phi versus Momentum Histogram",  1200, 0, 12,  390, -30, 360);
-TH2F *ThetaVPhiHisto2 = new TH2F("ThetaVPhiHisto2", "Theta versus Phi Histogram (adjusted)",  390,-30, 360,  45, 0, 45);
+//TH2F *ThetaVPHisto = new TH2F("ThetaVPHisto", "Theta versus Momentum Histogram",  1200, 0, 12,  45, 0, 45);
+//TH2F *PhiVPHisto = new TH2F("PhiVPHisto", "Phi versus Momentum Histogram",  1200, 0, 12,  390, -30, 360);
+//TH2F *ThetaVPhiHisto2 = new TH2F("ThetaVPhiHisto2", "Theta versus Phi Histogram (adjusted)",  390,-30, 360,  45, 0, 45);
 
 TH1F *wHisto2 = new TH1F("wHisto2", "wHisto full with fit", 1000, 0, 5);
 TH1F *wHistoCut2 = new TH1F("wHistoCut2", "wHistoCut2", 240, 0, 1.2);
@@ -132,25 +133,25 @@ void simpleAnaLC(){
 
 
   //Below is MINE
-  TH1F *wHisto_Range[11][6];
+  //TH1F *wHisto_Range[11][6];
   TH1F *BE1DHisto[6];
-  TH2F *ThetaVPSec[6];
+  //TH2F *ThetaVPSec[6];
   //TH1F *BE1DHistoS[6];
   TH1F *BE1DThetaHisto[8];
   //TH2F *SFHistoSec[6];
 
 
-  for(int s=0; s<11; s++){
-    for(int n=0; n<6;n++){
-      wHisto_Range[s][n] = new TH1F(Form("wHisto_Range%d_sec%d", s + 1,n+1), Form("wHisto_Range%d_sec%d", s + 1,n+1), 50, 0, 5);
-      //wHisto_RangeV.push_back(wHisto_Range[s][n]);
-      // BE1DHistoS[n] = new TH1F(Form("BE1DHisto_Sec_%d_Small",n+1), Form("BE1DHisto_Sec_%d_Small",n+1), 150, 0, 15);
-    }
-  }
+  // for(int s=0; s<11; s++){
+  //   for(int n=0; n<6;n++){
+  //     wHisto_Range[s][n] = new TH1F(Form("wHisto_Range%d_sec%d", s + 1,n+1), Form("wHisto_Range%d_sec%d", s + 1,n+1), 50, 0, 5);
+  //     //wHisto_RangeV.push_back(wHisto_Range[s][n]);
+  //     // BE1DHistoS[n] = new TH1F(Form("BE1DHisto_Sec_%d_Small",n+1), Form("BE1DHisto_Sec_%d_Small",n+1), 150, 0, 15);
+  //   }
+  // }
 
   for(int n=0; n<6;n++){
     BE1DHisto[n] = new TH1F(Form("BE1DHisto_Sec_%d",n+1), Form("BE1DHisto_Sec_%d",n+1), 300, 0, 20);
-    ThetaVPSec[n] = new TH2F(Form("ThetaVPSec%d",n+1), Form("Theta versus Momentum Sector %d",n+1),  1200, 0, 12,  90, 0, 45);
+    //ThetaVPSec[n] = new TH2F(Form("ThetaVPSec%d",n+1), Form("Theta versus Momentum Sector %d",n+1),  1200, 0, 12,  90, 0, 45);
     BE1DThetaHisto[n] = new TH1F(Form("BE1DThetaHisto_Range_%d",n+1), Form("BE1DThetaHisto_Range_%d",n+1), 300, 0, 20);
     //SFHistoSec[n]= new TH2F(Form("SF_Sec_%d",n+1), Form("SF vs Momentum (Sector %d)",n+1), 600, 0, 12,  50, 0, 0.5);
   }
@@ -241,6 +242,7 @@ void simpleAnaLC(){
   for(int i=0;i<6;i++){
     out_tree_electron_momentum.Branch(Form("el_p_Measured_Sec_%d",i+1),&el_p_Measured[i]);
     out_tree_electron_momentum.Branch(Form("el_p_Calculated_Sec_%d",i+1),&el_p_Calculated[i]);
+    out_tree_electron_momentum.Branch(Form("el_p_Difference_Sec_%d",i+1),&el_p_Difference[i]);
   }
 
 
@@ -352,6 +354,7 @@ void simpleAnaLC(){
     for(int i=0;i<6;i++){
       el_p_Measured[i].clear();
       el_p_Calculated[i].clear();
+      el_p_Difference[i].clear();
 
       p4_ele_pR[i].clear();
       p4_ele_pTh[i].clear();
@@ -543,15 +546,11 @@ void simpleAnaLC(){
 		  limitCO2=0;
 		  cout<<endl;
 		  cout<<"E from eq1= "<<(((db->GetParticle(2212)->Mass())*el.P())/((db->GetParticle(2212)->Mass())-el.P()+(el.P()*TMath::Cos(el.Theta()))))<<endl;
-		  //cout<<"eBeam= "<<eBeam<<endl;
-		  //cout<<"el.E()= "<<el.E()<<endl;
 		  cout<<"kin_W(el, eBeam)= "<<kin_W(el, eBeam)<<endl;
                   cout<<"kin_W(el, pred_e_beam_from_angles)= "<<kin_W(el, pred_e_beam_from_angles)<<endl;
 		  cout<<"el.Theta()= "<<(el.Theta()*180/PI)<<endl;
-                  //cout<<"el.P()= "<<(el.P())<<endl; 
-		  if(ProOelQ2==1){
+                   if(ProOelQ2==1){
 		    cout<<"E from eq2 (with proton)= "<<((db->GetParticle(2212)->Mass())*(TMath::Power(TMath::Tan(el.Theta()/2),-1)*TMath::Power(TMath::Tan(pro.Theta()),-1)-1))<<endl;
-		    //cout<<"pro.E()= "<<pro.E()<<endl;
 		    cout<<"pro.Theta()= "<<(pro.Theta()*180/PI)<<endl;
 		  }
 		  cout<<endl<<endl;
@@ -599,73 +598,77 @@ void simpleAnaLC(){
        	      //p4_ele_p_Sec[secNum-1].push_back(el.P());
 	      el_p_Measured[secNum-1].push_back(el.P());
 	      el_p_Calculated[secNum-1].push_back(elPcal);
-       	    }
-       	    ThetaVPHisto->Fill(el.P(),el.Theta()*180/PI);
+	      el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+	    }
+
+
+	    //Below is commented to remove 2D histograms
+       	    // ThetaVPHisto->Fill(el.P(),el.Theta()*180/PI);
        	    
-       	    if((el.Phi()*180/PI)<0 && secNum>1){
-       	      ThetaVPhiHisto2->Fill(360+(el.Phi()*180/PI),el.Theta()*180/PI);
-       	      PhiVPHisto->Fill(el.P(),360+el.Phi()*180/PI);
-       	    }
-       	    else{
-       	      ThetaVPhiHisto2->Fill((el.Phi()*180/PI),el.Theta()*180/PI);
-       	      PhiVPHisto->Fill(el.P(),el.Phi()*180/PI);
-       	    }
+       	    // if((el.Phi()*180/PI)<0 && secNum>1){
+       	    //   ThetaVPhiHisto2->Fill(360+(el.Phi()*180/PI),el.Theta()*180/PI);
+       	    //   PhiVPHisto->Fill(el.P(),360+el.Phi()*180/PI);
+       	    // }
+       	    // else{
+       	    //   ThetaVPhiHisto2->Fill((el.Phi()*180/PI),el.Theta()*180/PI);
+       	    //   PhiVPHisto->Fill(el.P(),el.Phi()*180/PI);
+       	    // }
        	      
-       	    ThetaVPSec[secNum-1]->Fill(el.P(),el.Theta()*180/PI);
+       	    // ThetaVPSec[secNum-1]->Fill(el.P(),el.Theta()*180/PI);
        	    
       	    //Below is for BE Theta Ranges
        	    if(kin_Q2(el, eBeam)>=1 && kin_Q2(el, eBeam)<2){
-       	      wHisto_Range[0][secNum-1]->Fill(kin_W(el, eBeam));//Range:1-2 GeV
+	      //       	      wHisto_Range[0][secNum-1]->Fill(kin_W(el, eBeam));//Range:1-2 GeV
        	      //wHisto_RangeV2.push_back(kin_W(el, eBeam));
       	      TestRangeNum=0;
       	    }
       	    if(kin_Q2(el, eBeam)>=2 && kin_Q2(el, eBeam)<3){
-      	      wHisto_Range[1][secNum-1]->Fill(kin_W(el, eBeam));//Range:2-3 GeV
+	      //      	      wHisto_Range[1][secNum-1]->Fill(kin_W(el, eBeam));//Range:2-3 GeV
        	      //wHisto_RangeV3.push_back(kin_W(el, eBeam));
        	      TestRangeNum=1;                                                                                                                                      
       	    }
        	    if(kin_Q2(el, eBeam)>=3 && kin_Q2(el, eBeam)<4){
-      	      wHisto_Range[2][secNum-1]->Fill(kin_W(el, eBeam));//Range:3-4 GeV                                                                                               
+	      //      	      wHisto_Range[2][secNum-1]->Fill(kin_W(el, eBeam));//Range:3-4 GeV                                                                                               
       	      //wHisto_RangeV4.push_back(kin_W(el, eBeam));
        	      TestRangeNum=2;
       	    }
       	    if(kin_Q2(el, eBeam)>=4 && kin_Q2(el, eBeam)<5){
-      	      wHisto_Range[3][secNum-1]->Fill(kin_W(el, eBeam));//Range:4-5 GeV
+	      //      	      wHisto_Range[3][secNum-1]->Fill(kin_W(el, eBeam));//Range:4-5 GeV
       	      //wHisto_RangeV5.push_back(kin_W(el, eBeam));
        	      TestRangeNum=3;
       	    }
        	      if(kin_Q2(el, eBeam)>=5 && kin_Q2(el, eBeam)<6){
-       	      wHisto_Range[4][secNum-1]->Fill(kin_W(el, eBeam));//Range:5-6 GeV                                                                                                                      
+		//       	      wHisto_Range[4][secNum-1]->Fill(kin_W(el, eBeam));//Range:5-6 GeV                                                                                                    
       	      //wHisto_RangeV6.push_back(kin_W(el, eBeam));
        	      TestRangeNum=4;
       	    }
               if(kin_Q2(el, eBeam)>=6 && kin_Q2(el, eBeam)<7){
-       	      wHisto_Range[5][secNum-1]->Fill(kin_W(el, eBeam));//Range:6-7 GeV                                                                                                                 
+		//       	      wHisto_Range[5][secNum-1]->Fill(kin_W(el, eBeam));//Range:6-7 GeV                                                                                                    
        	      //wHisto_RangeV7.push_back(kin_W(el, eBeam));
       	      TestRangeNum=5;
       	    }
       	    if(kin_Q2(el, eBeam)>=7 && kin_Q2(el, eBeam)<8){
-       	      wHisto_Range[6][secNum-1]->Fill(kin_W(el, eBeam));//Range:7-8 GeV                                                                                                                        
+	      //       	      wHisto_Range[6][secNum-1]->Fill(kin_W(el, eBeam));//Range:7-8 GeV                                                                                                           
        	      //wHisto_RangeV8.push_back(kin_W(el, eBeam));
        	      TestRangeNum=6;
       	    }
       	    if(kin_Q2(el, eBeam)>=8 && kin_Q2(el, eBeam)<9){
-      	      wHisto_Range[7][secNum-1]->Fill(kin_W(el, eBeam));//Range:8-9 GeV
+	      //      	      wHisto_Range[7][secNum-1]->Fill(kin_W(el, eBeam));//Range:8-9 GeV
        	      //wHisto_RangeV9.push_back(kin_W(el, eBeam));
                TestRangeNum=7;
       	      }
        	    if(kin_Q2(el, eBeam)>=9 && kin_Q2(el, eBeam)<10){
-       	      wHisto_Range[8][secNum-1]->Fill(kin_W(el, eBeam));//Range:9-10 GeV
+	      //       	      wHisto_Range[8][secNum-1]->Fill(kin_W(el, eBeam));//Range:9-10 GeV
        	      //wHisto_RangeV10.push_back(kin_W(el, eBeam));
-         	      TestRangeNum=8;
+	      TestRangeNum=8;
       	    }
        	    if(kin_Q2(el, eBeam)>=10){
-       		wHisto_Range[9][secNum-1]->Fill(kin_W(el, eBeam));//Range:10+ GeV                                                                                                                         
-       		//wHisto_RangeV11.push_back(kin_W(el, eBeam));
-      		TestRangeNum=9;
+	      //       		wHisto_Range[9][secNum-1]->Fill(kin_W(el, eBeam));//Range:10+ GeV                                                                                                         
+	      //wHisto_RangeV11.push_back(kin_W(el, eBeam));
+	      TestRangeNum=9;
        	    }
        	    wHisto_RangeAll[TestRangeNum].push_back(kin_W(el, eBeam));
-      	    wHisto_Range[10][secNum-1]->Fill(kin_W(el, eBeam));//Range: All
+	    //      	    wHisto_Range[10][secNum-1]->Fill(kin_W(el, eBeam));//Range: All
      	    //wHisto_RangeSecs[TestRangeNum][secNum-1].push_back(kin_W(el, eBeam));
           
 	  }
@@ -686,6 +689,16 @@ void simpleAnaLC(){
               int layer2 = PartCalorimeter.getInt("layer",PCALSize-t);
               int pindex2 = PartCalorimeter.getInt("pindex",PCALSize-t);
               int detector2 = PartCalorimeter.getInt("detector",PCALSize-t);
+
+              float energy3 = PartCalorimeter.getFloat("energy",Nint(PCALSize/2)-t);
+              int layer3 = PartCalorimeter.getInt("layer",Nint(PCALSize/2)-t);
+              int pindex3 = PartCalorimeter.getInt("pindex",Nint(PCALSize/2)-t);
+              int detector3 = PartCalorimeter.getInt("detector",Nint(PCALSize/2)-t);
+
+              float energy4 = PartCalorimeter.getFloat("energy",Nint(PCALSize/2)+t);
+              int layer4 = PartCalorimeter.getInt("layer",Nint(PCALSize/2)+t);
+              int pindex4 = PartCalorimeter.getInt("pindex",Nint(PCALSize/2)+t);
+              int detector4 = PartCalorimeter.getInt("detector",Nint(PCALSize/2)+t);
 
 	      if (pindex == 0 && detector == 7){
 		if (layer == 1){
@@ -711,7 +724,35 @@ void simpleAnaLC(){
                 }
               }
 
-	      if(t >= (PCALSize-t)){
+	      if (pindex3 == 0 && detector3 == 7){
+                if (layer3 == 1){
+                  PCALE=energy3;
+                }
+                if(layer3 == 4){
+                  ECE=energy3;
+                }
+                if(layer3 == 7){
+                  ECOE=energy3;
+                }
+              }
+
+	      if (pindex4 == 0 && detector4 == 7){
+                if (layer4 == 1){
+                  PCALE=energy4;
+                }
+                if(layer4 == 4){
+                  ECE=energy4;
+                }
+                if(layer4 == 7){
+                  ECOE=energy4;
+                }
+              }
+
+              if(t >= (PCALSize-t)){
+                t=PCALSize+1;
+              }
+
+	      if((t >= (Nint(PCALSize/2)-t)) && ((PCALSize-t) <= (Nint(PCALSize/2)+t))){
 		t=PCALSize+1;
 	      }
 
@@ -982,17 +1023,17 @@ void simpleAnaLC(){
   q2Histo->Write();
   wq2Histo->Write();
 
-  //Below is MINE
-  out->mkdir("Theta, Phi, and P");
-  out->cd("Theta, Phi, and P");
-  ThetaVPhiHisto2->Write();
-  ThetaVPHisto->Write();
-  PhiVPHisto->Write();
+  // //Below is MINE
+  // out->mkdir("Theta, Phi, and P");
+  // out->cd("Theta, Phi, and P");
+  // ThetaVPhiHisto2->Write();
+  // ThetaVPHisto->Write();
+  // PhiVPHisto->Write();
 
 
-  for(int i=0;i<6;i++){
-    ThetaVPSec[i]->Write();
-  }
+  // for(int i=0;i<6;i++){
+  //   ThetaVPSec[i]->Write();
+  // }
 
   out->mkdir("w and q2 analysis");
   out->cd("w and q2 analysis");
