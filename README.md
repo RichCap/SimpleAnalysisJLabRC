@@ -6,7 +6,8 @@ Most Recent Changes:
 * Added more to simpleAnaLC.C for momentum corrections
 * Made histobuilderR.C more capable for creating histograms from root file
 * histobuilderR.C now creates new root file like simpleAnaLC.C did but with just canvases instead of tree branches 
-
+* simpleAnaLC.C no longer produces PDFs and is now less responsible for 2D histograms (moving this responsibility over to histobuilderR.C)
+* Changed name of the root file produced by simpleAnaLC.C (to compare with above change without loss of histograms)
 
 Instructions on running:
 1) Use ./toConvert.sh to have simpleAnaLC.C begin processing data.

@@ -30,7 +30,7 @@ double PI= 3.14159265358979323846;
 void histobuilderR(){
 
   //Preparing Code                                                                                                                                                                         
-  int OutFileNum=17;
+  int OutFileNum=18;
   
   TString inputFile;
  
@@ -73,7 +73,7 @@ void histobuilderR(){
 
   TFile *InF=new TFile(inputFile);
   TTree *SF_sec=(TTree*)InF->Get("out_tree_SF_sec"); 
-
+  TTree *w_and_q2=(TTree*)InF->Get("out_tree_w_and_q2");
 
 
   //////// Making new out file //////////
@@ -85,6 +85,7 @@ void histobuilderR(){
   
   //////// Making histograms //////////// 
 
+
   TH2F *SFH = new TH2F("SFH", "Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
 
   TH2F *SFHs1 = new TH2F("SFHs1", "Sampling Fraction versus Momentum Histogram (Sec 1)", 600, 0, 12,  50, 0, 0.5);
@@ -94,35 +95,48 @@ void histobuilderR(){
   TH2F *SFHs5 = new TH2F("SFHs5", "Sampling Fraction versus Momentum Histogram (Sec 5)", 600, 0, 12,  50, 0, 0.5);
   TH2F *SFHs6 = new TH2F("SFHs6", "Sampling Fraction versus Momentum Histogram (Sec 6)", 600, 0, 12,  50, 0, 0.5);
 
+  TH1F *wHisto_s1 = new TH1F("wHisto_s1","wHisto_s1", 1000, 0, 5);
+  TH1F *wHisto_s2 = new TH1F("wHisto_s2","wHisto_s2", 1000, 0, 5);
+  TH1F *wHisto_s3 = new TH1F("wHisto_s3","wHisto_s3", 1000, 0, 5);
+  TH1F *wHisto_s4 = new TH1F("wHisto_s4","wHisto_s4", 1000, 0, 5);
+  TH1F *wHisto_s5 = new TH1F("wHisto_s5","wHisto_s5", 1000, 0, 5);
+  TH1F *wHisto_s6 = new TH1F("wHisto_s6","wHisto_s6", 1000, 0, 5);
+  TH1F *wHisto_all = new TH1F("wHisto_all","wHisto_all", 1000, 0, 5);
 
 
-  //////// Filling histograms //////////// 
-  // vector<double> SFALLsf;
-  // vector<double> SFALLmom;
-  // SFALLsf=(TTree*)SF_sec->Get("Sampling_Fraction_All");
-  // SFALLmom=(TTree*)SF_sec->Get("Momentum_for_All");
 
-  // SFH->Fill(SFALLsf,SFALLmom);
+  ///// Making fits for histograms ///////
 
 
-  ///// Making/Filling Branches //////////
+  // TF1 *fitT = new TF1("fitT","[Amp]*exp(-0.5*((x-[Mean])/[Sigma])*((x-[Mean])/[Sigma]))+[p0]+[p1]*x+[p2]*x*x",0,1.2); 
+  // fitT->SetParameter(5,0.9774);
+  // fitT->SetParLimits(5,0.9774*0.95,0.9774*1.05);
+  // fitT->SetParameter(6,0.08757);
+  // fitT->SetParLimits(6,0.08757*0.9,0.08757*1.1);  
+  // fitT->SetParLimits(4,0,10000);
+  
+  TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x",0,1.2);
+  fitT->SetParameter(0,1509);
+  fitT->SetParLimits(0,1509*0.5,1509*1.5);
+  fitT->SetParameter(1,0.9774);
+  fitT->SetParLimits(1,0.9774*0.95,0.9774*1.05);
+  fitT->SetParameter(2,0.08757);
+  fitT->SetParLimits(2,0.08757*0.9,0.08757*1.1);
 
-  // SamplingFraction.Branch("SF_All_Secs",&SFH,);
-  // SamplingFraction.Branch("SF_Sec_1",&SFHs1);
-  // SamplingFraction.Branch("SF_Sec_2",&SFHs2);
-  // SamplingFraction.Branch("SF_Sec_3",&SFHs3);
-  // SamplingFraction.Branch("SF_Sec_4",&SFHs4);
-  // SamplingFraction.Branch("SF_Sec_5",&SFHs5);
-  // SamplingFraction.Branch("SF_Sec_6",&SFHs6);
-
+  //wHisto_all->Fit("fitT");
+  //gStyle->SetOptFit(1111111);
 
 
   ///// Making/Filling Canvases //////////
+
+
+  std::cout<<"Making Canvases"<<std::endl;
 
   TCanvas *SFall = new TCanvas("SFall","Sampling Fraction Histogram (All Sectors)",200,10,700,780);
   SFall->cd();
   SF_sec->Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
 
+  std::cout<<"SFall Done"<<std::endl;
 
   TCanvas *SFsecs = new TCanvas("SFsecs","Sampling Fraction Histograms (by sector)",200,10,700,780);
   SFsecs->Divide(3,2);
@@ -139,28 +153,66 @@ void histobuilderR(){
   SFsecs->cd(6);
   SF_sec->Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHs6","","colz");
 
+  std::cout<<"SFsecs Done"<<std::endl;
 
+  TCanvas *wHVsecs = new TCanvas("wHVsecs","wHisto (by sector)",200,10,700,780);
+  wHVsecs->Divide(3,2);
+  wHVsecs->cd(1);
+  w_and_q2->Draw("wHistoV_Sec_1>> wHisto_s1");
+  wHVsecs->cd(2);
+  w_and_q2->Draw("wHistoV_Sec_2>> wHisto_s2");
+  wHVsecs->cd(3);
+  w_and_q2->Draw("wHistoV_Sec_3>> wHisto_s3");
+  wHVsecs->cd(4);
+  w_and_q2->Draw("wHistoV_Sec_4>> wHisto_s4");
+  wHVsecs->cd(5);
+  w_and_q2->Draw("wHistoV_Sec_5>> wHisto_s5");
+  wHVsecs->cd(6);
+  w_and_q2->Draw("wHistoV_Sec_6>> wHisto_s6");
 
+  std::cout<<"wHVsecs Done"<<std::endl;
 
-  /////// Saving PDFs and outfile /////////
+  TCanvas *wHVall =new TCanvas("wHVall","wHisto",200,10,700,780);
+  wHVall->cd();
+  w_and_q2->Draw("wHistoV>> wHisto_all");
+  wHisto_all->Fit("fitT","R",0,1.2);
+  gStyle->SetOptFit(1111111);    
+
+  std::cout<<"wHVall Done"<<std::endl;
+
+  /////////// Saving Outfile /////////////
   
+
+  std::cout<<"Saving Results"<<std::endl;
+
   outH->Write();
-  outH->mkdir("Example");
-  outH->cd("Example");
+
+  outH->mkdir("SF");
+  outH->cd("SF");
   SFall->Write();
   SFsecs->Write();
-  
-  SFall->SaveAs("SFall.pdf","pdf");
-  SFsecs->SaveAs("SFsecs.pdf","pdf");
+
+  outH->mkdir("wHistos");
+  outH->cd("wHistos");
+  wHVsecs->Write();
+  wHVall->Write();
+
+  outH->Close();  
+
+
+  ////////// Saving PDFs  ///////////////  
+
+  //SFall->SaveAs("SFall.pdf","pdf");
+  //SFsecs->SaveAs("SFsecs.pdf","pdf");
 
 
 
   ////////// Organizing PDFs  /////////////                                                                                                                                                                                      
-  system("ls");
-  system("mkdir PDFs_from_root/");
-  system(Form("mkdir PDFs_from_root/From_test%d",OutFileNum));
-  system(Form("mv *.pdf PDFs_from_root/From_test%d",OutFileNum));
-  system("ls");
+  //system("ls");
+  //system("mkdir PDFs_from_root/");
+  //system(Form("mkdir PDFs_from_root/From_test%d",OutFileNum));
+  //system(Form("mv *.pdf PDFs_from_root/From_test%d",OutFileNum));
+  system("ls -lh");
 
 
   //End of code

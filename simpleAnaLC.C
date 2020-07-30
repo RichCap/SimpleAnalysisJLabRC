@@ -74,7 +74,7 @@ TH1F *wHistoCut2 = new TH1F("wHistoCut2", "wHistoCut2", 240, 0, 1.2);
 TH2F *BEVPhiHisto2 = new TH2F("BEVPhiHisto2", "Beam Energy versus Phi Histogram (adjusted)",  390,-30, 360,  300, 0, 30);
 TH2F *BEVThetaHisto = new TH2F("BEVThetaHisto", "Beam Energy versus Theta Histogram", 90, 0, 45,  300, 0, 30);
 
-TH2F *SamplingFractionHisto = new TH2F("SamplingFractionHisto", "Sampling Fraction versus Momentum Histogram", 600, 0, 12,  50, 0, 0.5);
+//TH2F *SamplingFractionHisto = new TH2F("SamplingFractionHisto", "Sampling Fraction versus Momentum Histogram", 600, 0, 12,  50, 0, 0.5);
 
 //Below was a test of MINE
 vector<double> wHisto_RangeAll[10];
@@ -125,7 +125,7 @@ void simpleAnaLC(){
   auto db=TDatabasePDG::Instance();
 
   //Below is MINE
-  int OutFileNum=17;
+  int OutFileNum=18;
 
   TString inputFile;
   TString outputFile = Form("test%d.root",OutFileNum);
@@ -137,7 +137,7 @@ void simpleAnaLC(){
   TH2F *ThetaVPSec[6];
   //TH1F *BE1DHistoS[6];
   TH1F *BE1DThetaHisto[8];
-  TH2F *SFHistoSec[6];
+  //TH2F *SFHistoSec[6];
 
 
   for(int s=0; s<11; s++){
@@ -152,7 +152,7 @@ void simpleAnaLC(){
     BE1DHisto[n] = new TH1F(Form("BE1DHisto_Sec_%d",n+1), Form("BE1DHisto_Sec_%d",n+1), 300, 0, 20);
     ThetaVPSec[n] = new TH2F(Form("ThetaVPSec%d",n+1), Form("Theta versus Momentum Sector %d",n+1),  1200, 0, 12,  90, 0, 45);
     BE1DThetaHisto[n] = new TH1F(Form("BE1DThetaHisto_Range_%d",n+1), Form("BE1DThetaHisto_Range_%d",n+1), 300, 0, 20);
-    SFHistoSec[n]= new TH2F(Form("SF_Sec_%d",n+1), Form("SF vs Momentum (Sector %d)",n+1), 600, 0, 12,  50, 0, 0.5);
+    //SFHistoSec[n]= new TH2F(Form("SF_Sec_%d",n+1), Form("SF vs Momentum (Sector %d)",n+1), 600, 0, 12,  50, 0, 0.5);
   }
   
   BE1DThetaHisto[6] = new TH1F("BE1DThetaHisto_Range_7", "BE1DThetaHisto_Range_7", 300, 0, 20);
@@ -237,19 +237,10 @@ void simpleAnaLC(){
   out_tree.Branch("p4_ele_vz", &p4_ele_vz);
 
 
-
-
-  //Below is MINE
-  // TTree out_tree_p_Sectors("out_tree_p_Sectors","out_tree_p_Sectors");
-  // for(int i=0;i<6;i++){
-  //   out_tree_p_Sectors.Branch(Form("p4_ele_p_Sec_%d",i+1),&p4_ele_p_Sec[i]);
-  // }
-
   TTree out_tree_electron_momentum("out_tree_electron_momentum","out_tree_electron_momentum");
   for(int i=0;i<6;i++){
     out_tree_electron_momentum.Branch(Form("el_p_Measured_Sec_%d",i+1),&el_p_Measured[i]);
     out_tree_electron_momentum.Branch(Form("el_p_Calculated_Sec_%d",i+1),&el_p_Calculated[i]);
-
   }
 
 
@@ -319,6 +310,10 @@ void simpleAnaLC(){
   out_tree_w_and_q2.Branch("wHistoV",&wHistoV[6]);
   out_tree_w_and_q2.Branch("q2HistoV",&q2HistoV[6]);
 
+
+  //End of TTree creation
+
+
   hipo::event event;
   hipo::bank PART(factory.getSchema("REC::Particle"));
   hipo::bank PartCalorimeter(factory.getSchema("REC::Calorimeter"));
@@ -355,7 +350,6 @@ void simpleAnaLC(){
 
     //Below is MINE
     for(int i=0;i<6;i++){
-      //p4_ele_p_Sec[i].clear();
       el_p_Measured[i].clear();
       el_p_Calculated[i].clear();
 
@@ -397,6 +391,8 @@ void simpleAnaLC(){
     event.getStructure(RConfig);
 
 
+
+    //Finding the electron
     int pid = PART.getInt("pid",0);
     int charge = PART.getShort("charge",0);
     int id = PART.getInt("pid",0);
@@ -406,7 +402,7 @@ void simpleAnaLC(){
     int partSize = PART.getSize();
 
 
-    //Finding proton
+    //Finding the proton
     int pidP = PART.getInt("pid",proSearch);
     int chargeP = PART.getShort("charge",proSearch);
     int idP = PART.getInt("pid",proSearch);
@@ -429,6 +425,8 @@ void simpleAnaLC(){
     if(id == 11 && status < -1999 && status > -4000 && partSize > 0 && charge == -1 && idP == 2212 && statusP > 999 && statusP < 5000 && partSize > 0 && chargeP == 1 && PART.getFloat("vz",0) > -10 && PART.getFloat("vz",0) < 5 && startTime > 0 && PART.getFloat("vz",proSearch) > -10 && PART.getFloat("vz",proSearch) < 5){
       tCount=tCount+1;
     }
+
+    //Displaying data
     if(limitCO==500000){
       limitCO=0;
       limitCO2=1;
@@ -447,7 +445,6 @@ void simpleAnaLC(){
     //Comment line above to stop couting info
 
 
-
     //Below is MINE 
     int secNum = PartCalorimeter.getInt("sector",0);
     int TestRangeNum=0;
@@ -460,8 +457,6 @@ void simpleAnaLC(){
        	  el.SetXYZM(PART.getFloat("px",0), PART.getFloat("py",0), PART.getFloat("pz",0), db->GetParticle(11)->Mass());
 	  
 	  double pred_e_beam_from_angles = ((db->GetParticle(2212)->Mass())*el.P())/((db->GetParticle(2212)->Mass())-el.P()+(el.P()*TMath::Cos(el.Theta())));
-	  //eBeam = pred_e_beam_from_angles;                                                                                                                                                              
-	  //Line above rewrites the fixed eBeam value so that w and Q2 are calculated with the calculated eBeam energy  
 	 
 	  ProOelQ1=1;
 
@@ -508,7 +503,6 @@ void simpleAnaLC(){
 		BEVThetaHisto->Fill((el.Theta()*180/PI),pred_e_beam_from_angles);
 		
 		BE1DHisto[secNum-1]->Fill(pred_e_beam_from_angles);
-		//BE1DHistoS[secNum-1]->Fill(pred_e_beam_from_angles);
 		
 		if(((180/PI)*el.Theta()) >= 6 && ((180/PI)*el.Theta()) < 7){
 		  BEThetaRegion=0;
@@ -727,8 +721,8 @@ void simpleAnaLC(){
 	      }
 	    }
 	    SFt=(PCALE+ECE+ECOE)/el.P();
-	    SamplingFractionHisto->Fill(el.P(),SFt);
-	    SFHistoSec[secNum-1]->Fill(el.P(),SFt);
+	    //SamplingFractionHisto->Fill(el.P(),SFt);
+	    //SFHistoSec[secNum-1]->Fill(el.P(),SFt);
 	    //if(SFt<=1 && SFt>=0 && el.P()>0){
 	    SFvector[secNum-1].push_back(SFt);
 	    SFvector[6].push_back(SFt);
@@ -768,215 +762,215 @@ void simpleAnaLC(){
   }
   //}
   
-  //Below are the canvases to be saved as PDFs
-  TCanvas *W_Range = new TCanvas("W_Range","w in different ranges of Q2 for all sectors",200,10,1000,980);
-  W_Range->Divide(4,3);   
-  TLegend *legendWR;
-  legendWR= new TLegend(2,2,2,2);
-  for(int n=0;n<12;n++){
-    W_Range->cd(n+1);
-    if(n<11){
-      for(int i=0;i<6;i++){
-	if(n!=9){
-	  wHisto_Range[n][i]->SetTitle(Form("w_from_%d_to_%d_GeV", n + 1, n + 2));
-	}
-	if(n==9){
-	  wHisto_Range[n][i]->SetTitle("w_from_10_to_11+_GeV");
-	}
-	if(n==10){
-	  wHisto_Range[n][i]->SetTitle("w_from_all_ranges");
-	}
-	wHisto_Range[n][i]->SetLineColor(39+(2*i));
-      }
+  // //Below are the canvases to be saved as PDFs
+  // TCanvas *W_Range = new TCanvas("W_Range","w in different ranges of Q2 for all sectors",200,10,1000,980);
+  // W_Range->Divide(4,3);   
+  // TLegend *legendWR;
+  // legendWR= new TLegend(2,2,2,2);
+  // for(int n=0;n<12;n++){
+  //   W_Range->cd(n+1);
+  //   if(n<11){
+  //     for(int i=0;i<6;i++){
+  // 	if(n!=9){
+  // 	  wHisto_Range[n][i]->SetTitle(Form("w_from_%d_to_%d_GeV", n + 1, n + 2));
+  // 	}
+  // 	if(n==9){
+  // 	  wHisto_Range[n][i]->SetTitle("w_from_10_to_11+_GeV");
+  // 	}
+  // 	if(n==10){
+  // 	  wHisto_Range[n][i]->SetTitle("w_from_all_ranges");
+  // 	}
+  // 	wHisto_Range[n][i]->SetLineColor(39+(2*i));
+  //     }
       
-      wHisto_Range[n][0]->Draw();
-      wHisto_Range[n][1]->Draw("SAME");
-      wHisto_Range[n][2]->Draw("SAME");
-      wHisto_Range[n][3]->Draw("SAME");
-      wHisto_Range[n][4]->Draw("SAME");
-      wHisto_Range[n][5]->Draw("SAME");
-    }
-    if(n==11){
-      for(int i=0;i<6;i++){
-	legendWR->AddEntry(wHisto_Range[0][i],Form("Sector %d",i+1));
-      }
-      legendWR->Draw();
-    }
-  }
+  //     wHisto_Range[n][0]->Draw();
+  //     wHisto_Range[n][1]->Draw("SAME");
+  //     wHisto_Range[n][2]->Draw("SAME");
+  //     wHisto_Range[n][3]->Draw("SAME");
+  //     wHisto_Range[n][4]->Draw("SAME");
+  //     wHisto_Range[n][5]->Draw("SAME");
+  //   }
+  //   if(n==11){
+  //     for(int i=0;i<6;i++){
+  // 	legendWR->AddEntry(wHisto_Range[0][i],Form("Sector %d",i+1));
+  //     }
+  //     legendWR->Draw();
+  //   }
+  // }
 
 
-  //Below is my tests for background fits                                                                                                                                                                  
-  // TF1 *Cutf1 = new TF1("Cutf1","[0]*x+[1]",0,0.8);                                                                                                                                                     
-  // //TF1 *Cutf2 = new TF1("Cutf2","([0]*x)+([1]*sin([2]*x))",0,1.2);                                                                                                                                    
-  // //TF1 *Cutf2 = new TF1("Cutf2","([0]*x)+([1]*sin([2]*x))",0,0.8);                                                                                                                                    
-  // TF1 *Cutf2 = new TF1("Cutf2","(([1]*sin([2]*x))",0,0.8);                                                                                                                                           
-  // TF1 *Cutf3 = new TF1("Cutf3","([0]*x*x)+([1]*x)+[2]",0,0.8);                                                                                                                                         
-  // //Cutf2->SetParameter(0,64.3);                                                                                                                                                                     
-  // //Cutf2->SetParameter(1,2);                                                                                                                                      
-  // //Cutf2->SetParameter(2,20*PI);                                                                                                                                                                       
+  // //Below is my tests for background fits                                                                                                                                                                  
+  // // TF1 *Cutf1 = new TF1("Cutf1","[0]*x+[1]",0,0.8);                                                                                                                                                     
+  // // //TF1 *Cutf2 = new TF1("Cutf2","([0]*x)+([1]*sin([2]*x))",0,1.2);                                                                                                                                    
+  // // //TF1 *Cutf2 = new TF1("Cutf2","([0]*x)+([1]*sin([2]*x))",0,0.8);                                                                                                                                    
+  // // TF1 *Cutf2 = new TF1("Cutf2","(([1]*sin([2]*x))",0,0.8);                                                                                                                                           
+  // // TF1 *Cutf3 = new TF1("Cutf3","([0]*x*x)+([1]*x)+[2]",0,0.8);                                                                                                                                         
+  // // //Cutf2->SetParameter(0,64.3);                                                                                                                                                                     
+  // // //Cutf2->SetParameter(1,2);                                                                                                                                      
+  // // //Cutf2->SetParameter(2,20*PI);                                                                                                                                                                       
 
-  // //Setting Colors                                                                                                                                                                                      
-  // Cutf1->SetLineColor(kBlue);                                                                                                                                                                           
-  // Cutf2->SetLineColor(kPink);     
-  // Cutf3->SetLineColor(kGreen);                                                                                                                                                                          
+  // // //Setting Colors                                                                                                                                                                                      
+  // // Cutf1->SetLineColor(kBlue);                                                                                                                                                                           
+  // // Cutf2->SetLineColor(kPink);     
+  // // Cutf3->SetLineColor(kGreen);                                                                                                                                                                          
 
-  // TF1 *fitT = new TF1("fitT","[amp]*gaus(x,[Mean],[Sigma])+[p0]+[p1]*x+[p2]*x*x",0,1.2);
+  // // TF1 *fitT = new TF1("fitT","[amp]*gaus(x,[Mean],[Sigma])+[p0]+[p1]*x+[p2]*x*x",0,1.2);
+  // // fitT->SetParameter(1,0.9774);
+  // // fitT->SetParLimits(1,0.9774*0.8,0.9774*1.2);
+  // // fitT->SetParameter(2,0.08757);
+  // // fitT->SetParLimits(2,0.08757*0.8,0.08757*1.2);
+
+  // TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.2);
   // fitT->SetParameter(1,0.9774);
   // fitT->SetParLimits(1,0.9774*0.8,0.9774*1.2);
   // fitT->SetParameter(2,0.08757);
   // fitT->SetParLimits(2,0.08757*0.8,0.08757*1.2);
-
-  TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.2);
-  fitT->SetParameter(1,0.9774);
-  fitT->SetParLimits(1,0.9774*0.8,0.9774*1.2);
-  fitT->SetParameter(2,0.08757);
-  fitT->SetParLimits(2,0.08757*0.8,0.08757*1.2);
   
 
 
-  //Below is applying the fits for the electron scattering                                                                                                                                                 
-  wHistoCut2->Fit("fitT");
-  //gStyle->SetOptFit(1111111);
+  // //Below is applying the fits for the electron scattering                                                                                                                                                 
+  // wHistoCut2->Fit("fitT");
+  // //gStyle->SetOptFit(1111111);
   
-  // wHistoCut2->Fit("gaus","R",0,0.8, 1.08); 
-  // wHistoCut2->Fit("Cutf1","R+");                                                                                                                                                                       
-  // wHistoCut2->Fit("Cutf2","R++");
-  // wHistoCut2->Fit("Cutf3","R+++"); 
-  // gStyle->SetOptFit(1011);                                                                                                                                                                              
+  // // wHistoCut2->Fit("gaus","R",0,0.8, 1.08); 
+  // // wHistoCut2->Fit("Cutf1","R+");                                                                                                                                                                       
+  // // wHistoCut2->Fit("Cutf2","R++");
+  // // wHistoCut2->Fit("Cutf3","R+++"); 
+  // // gStyle->SetOptFit(1011);                                                                                                                                                                              
 
-  //For the full histogram                                                                                                                                                                                 
-  wHisto2->Fit("fitT");
-  //gStyle->SetOptFit(1111111);
+  // //For the full histogram                                                                                                                                                                                 
+  // wHisto2->Fit("fitT");
+  // //gStyle->SetOptFit(1111111);
   
-  // wHisto2->Fit("gaus","R",0,0.8, 1.08);                                                                                                                                                                 
-  // wHisto2->Fit("Cutf1","R+");                                                                                                                                                                           
-  // wHisto2->Fit("Cutf2","R++");                                                                                                                                                                          
-  // wHisto2->Fit("Cutf3","R+++");                                                                                                                                                                         
-  // gStyle->SetOptFit(1011);       
+  // // wHisto2->Fit("gaus","R",0,0.8, 1.08);                                                                                                                                                                 
+  // // wHisto2->Fit("Cutf1","R+");                                                                                                                                                                           
+  // // wHisto2->Fit("Cutf2","R++");                                                                                                                                                                          
+  // // wHisto2->Fit("Cutf3","R+++");                                                                                                                                                                         
+  // // gStyle->SetOptFit(1011);       
   
 
-  TCanvas *BEVAngle = new TCanvas("BEVAngle","Beam Energy versus angles",200,10,700,780);
-  BEVAngle->Divide(2);
-  BEVAngle->cd(1);
-  BEVPhiHisto2->GetYaxis()->SetTitle("Beam Energy (GeV)");
-  BEVPhiHisto2->GetXaxis()->SetTitle("Phi (degrees)");
-  BEVPhiHisto2->Draw("colz"); 
-  BEVAngle->cd(2);  
-  BEVThetaHisto->GetYaxis()->SetTitle("Beam Energy (GeV)");
-  BEVThetaHisto->GetXaxis()->SetTitle("Theta (degrees)");
-  BEVThetaHisto->Draw("colz");
+  // TCanvas *BEVAngle = new TCanvas("BEVAngle","Beam Energy versus angles",200,10,700,780);
+  // BEVAngle->Divide(2);
+  // BEVAngle->cd(1);
+  // BEVPhiHisto2->GetYaxis()->SetTitle("Beam Energy (GeV)");
+  // BEVPhiHisto2->GetXaxis()->SetTitle("Phi (degrees)");
+  // BEVPhiHisto2->Draw("colz"); 
+  // BEVAngle->cd(2);  
+  // BEVThetaHisto->GetYaxis()->SetTitle("Beam Energy (GeV)");
+  // BEVThetaHisto->GetXaxis()->SetTitle("Theta (degrees)");
+  // BEVThetaHisto->Draw("colz");
 
 
-  TCanvas *BESecs = new TCanvas("BESecs","Beam Energy by sector",200,10,700,780);
-  BESecs->Divide(3,2);
-  for(int i=0;i<6;i++){
-    BESecs->cd(i+1);
-    BE1DHisto[i]->SetTitle(Form("Beam Energy for Sector %d",i+1));
-    BE1DHisto[i]->Fit("gaus");
-    gStyle->SetOptFit(1011);
-    BE1DHisto[i]->Draw();  
-  }
-
-
-  TCanvas *ThetaPhiP = new TCanvas("ThetaPhiP","2D Theta, Phi, and P Histograms",200,10,780,700);
-  ThetaPhiP->Divide(3);
-  ThetaPhiP->cd(1);
-  ThetaVPhiHisto2->GetYaxis()->SetTitle("Theta (degrees)");
-  ThetaVPhiHisto2->GetXaxis()->SetTitle("Phi (degrees)");
-  ThetaVPhiHisto2->Draw("colz");
-  ThetaPhiP->cd(2);
-  ThetaVPHisto->GetYaxis()->SetTitle("Theta (degrees)");
-  ThetaVPHisto->GetXaxis()->SetTitle("Momentum (GeV)");
-  ThetaVPHisto->Draw("colz");
-  ThetaPhiP->cd(3);
-  PhiVPHisto->GetYaxis()->SetTitle("Phi (degrees)");
-  PhiVPHisto->GetXaxis()->SetTitle("Momentum (GeV)");
-  PhiVPHisto->Draw("colz");
-
-
-  TCanvas *ThetaPSecs = new TCanvas("ThetaPSecs","Theta and Momentum Histograms by Sector",200,10,700,780);
-  ThetaPSecs->Divide(3,2);
-  for(int i=0;i<6;i++){
-    ThetaPSecs->cd(i+1);
-    ThetaVPSec[i]->GetYaxis()->SetTitle("Theta (degrees)");
-    ThetaVPSec[i]->GetXaxis()->SetTitle("Momentum (GeV)");
-    ThetaVPSec[i]->SetTitle(Form("Theta vs Momentum for Sector %d",i+1));
-    ThetaVPSec[i]->Draw("colz");
-  }
-
-
-  TCanvas *BETheta = new TCanvas("BETheta","Beam Energy by angle Theta",200,10,700,780);
-  BETheta->Divide(4,2);
-  for(int i=0;i<8;i++){
-    BETheta->cd(i+1);
-    if(i<4){
-      BE1DThetaHisto[i]->SetTitle(Form("Beam Energy for Theta %d to %d degrees",i+6,i+7));
-    }
-    if(i==4){
-      BE1DThetaHisto[i]->SetTitle("Beam Energy for Theta 10 to 12.5 degrees");
-    }
-    if(i==5){
-      BE1DThetaHisto[i]->SetTitle("Beam Energy for Theta 12.5 to 15 degrees");
-    }
-    if(i==6){
-      BE1DThetaHisto[i]->SetTitle("Beam Energy for Theta 15 to 17.5 degrees");
-    }
-    if(i==7){
-      BE1DThetaHisto[i]->SetTitle("Beam Energy for Theta 17.5 to 20 degrees");
-    }
-    BE1DThetaHisto[i]->Fit("gaus");
-    gStyle->SetOptFit(1011);
-    BE1DThetaHisto[i]->Draw();
-  }
-
-  TCanvas *SFSecs = new TCanvas("SFSecs","Sampling Fraction Histograms by Sector",200,10,700,780);
-  SFSecs->Divide(3,2);
-  for(int i=0;i<6;i++){
-    SFSecs->cd(i+1);
-    SFHistoSec[i]->GetYaxis()->SetTitle("Sampling Fraction");
-    SFHistoSec[i]->GetXaxis()->SetTitle("Momentum (GeV)");
-    SFHistoSec[i]->SetTitle(Form("Sampling Fraction vs Momentum for Sector %d",i+1));
-    SFHistoSec[i]->Draw("colz");
-  }
-
-
-  // TCanvas *SFAll = new TCanvas("SFAll","Sampling Fraction Histogram",200,10,700,780);
-  // SFAll->Divide(1,2);
-  // SFAll->cd(1);
-  // SamplingFractionHisto->GetYaxis()->SetTitle("Sampling Fraction");
-  // SamplingFractionHisto->GetXaxis()->SetTitle("Momentum (GeV)");
-  // SamplingFractionHisto->SetTitle("Sampling Fraction vs Momentum for All Sectors");
-  // SamplingFractionHisto->Draw("colz");
-
-  // SFAll->cd(2);
-  // out_tree_SF_sec.Draw("Sampling_Fraction_All:Momentum_for_All","","colz");
-
-  //Below is a test of working with vectors/trees to make 2D histograms
-  TH2F *SFH = new TH2F("SFH", "Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
-  // TH2F *SFHsec[6];
+  // TCanvas *BESecs = new TCanvas("BESecs","Beam Energy by sector",200,10,700,780);
+  // BESecs->Divide(3,2);
   // for(int i=0;i<6;i++){
-  //   SFHsec[i]= new TH2F(Form("SFHsec_%d_(vec)",i+1), Form("SF vs Momentum (Sector %d) (Made from vectors)",i+1), 600, 0, 12,  50, 0, 0.5);
-  //   SFHsec[i]->GetYaxis()->SetTitle("Sampling Fraction");
-  //   SFHsec[i]->GetXaxis()->SetTitle("Momentum (GeV)");
-  //   //SFHsec[i]->SetTitle(Form("Sampling Fraction vs Momentum for Sector %d",i+1));
-  //   //out_tree_SF_sec.Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec_%d_(vec)",i+1,i+1,i+1),"","colz");
+  //   BESecs->cd(i+1);
+  //   BE1DHisto[i]->SetTitle(Form("Beam Energy for Sector %d",i+1));
+  //   BE1DHisto[i]->Fit("gaus");
+  //   gStyle->SetOptFit(1011);
+  //   BE1DHisto[i]->Draw();  
   // }
-  //out_tree_SF_sec.Branch("Sampling_Fraction_2DAll",&SFH);
-  out_tree_SF_sec.Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_1:Momentum_for_Sec_1>> SFHsec_1_(vec)","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_2:Momentum_for_Sec_2>> SFHsec_2_(vec)","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_3:Momentum_for_Sec_3>> SFHsec_3_(vec)","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_4:Momentum_for_Sec_4>> SFHsec_4_(vec)","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_5:Momentum_for_Sec_5>> SFHsec_5_(vec)","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHsec_6_(vec)","","colz");
 
 
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_1:Momentum_for_Sec_1>> SFHsec[0]","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_2:Momentum_for_Sec_2>> SFHsec[1]","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_3:Momentum_for_Sec_3>> SFHsec[2]","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_4:Momentum_for_Sec_4>> SFHsec[3]","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_5:Momentum_for_Sec_5>> SFHsec[4]","","colz");
-  // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHsec[5]","","colz");
+  // TCanvas *ThetaPhiP = new TCanvas("ThetaPhiP","2D Theta, Phi, and P Histograms",200,10,780,700);
+  // ThetaPhiP->Divide(3);
+  // ThetaPhiP->cd(1);
+  // ThetaVPhiHisto2->GetYaxis()->SetTitle("Theta (degrees)");
+  // ThetaVPhiHisto2->GetXaxis()->SetTitle("Phi (degrees)");
+  // ThetaVPhiHisto2->Draw("colz");
+  // ThetaPhiP->cd(2);
+  // ThetaVPHisto->GetYaxis()->SetTitle("Theta (degrees)");
+  // ThetaVPHisto->GetXaxis()->SetTitle("Momentum (GeV)");
+  // ThetaVPHisto->Draw("colz");
+  // ThetaPhiP->cd(3);
+  // PhiVPHisto->GetYaxis()->SetTitle("Phi (degrees)");
+  // PhiVPHisto->GetXaxis()->SetTitle("Momentum (GeV)");
+  // PhiVPHisto->Draw("colz");
+
+
+  // TCanvas *ThetaPSecs = new TCanvas("ThetaPSecs","Theta and Momentum Histograms by Sector",200,10,700,780);
+  // ThetaPSecs->Divide(3,2);
+  // for(int i=0;i<6;i++){
+  //   ThetaPSecs->cd(i+1);
+  //   ThetaVPSec[i]->GetYaxis()->SetTitle("Theta (degrees)");
+  //   ThetaVPSec[i]->GetXaxis()->SetTitle("Momentum (GeV)");
+  //   ThetaVPSec[i]->SetTitle(Form("Theta vs Momentum for Sector %d",i+1));
+  //   ThetaVPSec[i]->Draw("colz");
+  // }
+
+
+  // TCanvas *BETheta = new TCanvas("BETheta","Beam Energy by angle Theta",200,10,700,780);
+  // BETheta->Divide(4,2);
+  // for(int i=0;i<8;i++){
+  //   BETheta->cd(i+1);
+  //   if(i<4){
+  //     BE1DThetaHisto[i]->SetTitle(Form("Beam Energy for Theta %d to %d degrees",i+6,i+7));
+  //   }
+  //   if(i==4){
+  //     BE1DThetaHisto[i]->SetTitle("Beam Energy for Theta 10 to 12.5 degrees");
+  //   }
+  //   if(i==5){
+  //     BE1DThetaHisto[i]->SetTitle("Beam Energy for Theta 12.5 to 15 degrees");
+  //   }
+  //   if(i==6){
+  //     BE1DThetaHisto[i]->SetTitle("Beam Energy for Theta 15 to 17.5 degrees");
+  //   }
+  //   if(i==7){
+  //     BE1DThetaHisto[i]->SetTitle("Beam Energy for Theta 17.5 to 20 degrees");
+  //   }
+  //   BE1DThetaHisto[i]->Fit("gaus");
+  //   gStyle->SetOptFit(1011);
+  //   BE1DThetaHisto[i]->Draw();
+  // }
+
+  // // TCanvas *SFSecs = new TCanvas("SFSecs","Sampling Fraction Histograms by Sector",200,10,700,780);
+  // // SFSecs->Divide(3,2);
+  // // for(int i=0;i<6;i++){
+  // //   SFSecs->cd(i+1);
+  // //   SFHistoSec[i]->GetYaxis()->SetTitle("Sampling Fraction");
+  // //   SFHistoSec[i]->GetXaxis()->SetTitle("Momentum (GeV)");
+  // //   SFHistoSec[i]->SetTitle(Form("Sampling Fraction vs Momentum for Sector %d",i+1));
+  // //   SFHistoSec[i]->Draw("colz");
+  // // }
+
+
+  // // TCanvas *SFAll = new TCanvas("SFAll","Sampling Fraction Histogram",200,10,700,780);
+  // // SFAll->Divide(1,2);
+  // // SFAll->cd(1);
+  // // SamplingFractionHisto->GetYaxis()->SetTitle("Sampling Fraction");
+  // // SamplingFractionHisto->GetXaxis()->SetTitle("Momentum (GeV)");
+  // // SamplingFractionHisto->SetTitle("Sampling Fraction vs Momentum for All Sectors");
+  // // SamplingFractionHisto->Draw("colz");
+
+  // // SFAll->cd(2);
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_All:Momentum_for_All","","colz");
+
+  // //Below is a test of working with vectors/trees to make 2D histograms
+  // TH2F *SFH = new TH2F("SFH", "Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
+  // // TH2F *SFHsec[6];
+  // // for(int i=0;i<6;i++){
+  // //   SFHsec[i]= new TH2F(Form("SFHsec_%d_(vec)",i+1), Form("SF vs Momentum (Sector %d) (Made from vectors)",i+1), 600, 0, 12,  50, 0, 0.5);
+  // //   SFHsec[i]->GetYaxis()->SetTitle("Sampling Fraction");
+  // //   SFHsec[i]->GetXaxis()->SetTitle("Momentum (GeV)");
+  // //   //SFHsec[i]->SetTitle(Form("Sampling Fraction vs Momentum for Sector %d",i+1));
+  // //   //out_tree_SF_sec.Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec_%d_(vec)",i+1,i+1,i+1),"","colz");
+  // // }
+  // //out_tree_SF_sec.Branch("Sampling_Fraction_2DAll",&SFH);
+  // out_tree_SF_sec.Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_1:Momentum_for_Sec_1>> SFHsec_1_(vec)","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_2:Momentum_for_Sec_2>> SFHsec_2_(vec)","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_3:Momentum_for_Sec_3>> SFHsec_3_(vec)","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_4:Momentum_for_Sec_4>> SFHsec_4_(vec)","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_5:Momentum_for_Sec_5>> SFHsec_5_(vec)","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHsec_6_(vec)","","colz");
+
+
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_1:Momentum_for_Sec_1>> SFHsec[0]","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_2:Momentum_for_Sec_2>> SFHsec[1]","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_3:Momentum_for_Sec_3>> SFHsec[2]","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_4:Momentum_for_Sec_4>> SFHsec[3]","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_5:Momentum_for_Sec_5>> SFHsec[4]","","colz");
+  // // out_tree_SF_sec.Draw("Sampling_Fraction_Sec_6:Momentum_for_Sec_6>> SFHsec[5]","","colz");
 
 
   out->Write();
@@ -1004,7 +998,7 @@ void simpleAnaLC(){
   out->cd("w and q2 analysis");
   wHistoCut2->Write();
   wHisto2->Write();
-  W_Range->Write();
+  //W_Range->Write();
   BEVPhiHisto2->Write();
   BEVThetaHisto->Write();
   for(int i=0;i<6;i++){
@@ -1012,44 +1006,44 @@ void simpleAnaLC(){
     BE1DThetaHisto[i]->Write();
   }
 
-  out->mkdir("Sampling Fraction");
-  out->cd("Sampling Fraction");
+  //out->mkdir("Sampling Fraction");
+  //out->cd("Sampling Fraction");
   //out_tree_SF_sec.Draw("Sampling_Fraction_All:Momentum_for_All","","colz");
-  SamplingFractionHisto->Write();
-  SFH->Write();
+  //SamplingFractionHisto->Write();
+  //SFH->Write();
   //out_tree_SF_sec.Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
   //out_tree_SF_sec->Draw("Sampling_Fraction_All:Momentum_for_All>> SFH","","colz");
-  for(int i=0;i<6;i++){
-    SFHistoSec[i]->Write();
-    //SFHsec[i]->Write();
-    //out_tree_SF_sec.Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec[%d]",i+1,i+1,i),"","colz");
-    //out_tree_SF_sec->Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec[%d]",i+1,i+1,i),"","colz");
-  }
+  // for(int i=0;i<6;i++){
+  //   SFHistoSec[i]->Write();
+  //   //SFHsec[i]->Write();
+  //   //out_tree_SF_sec.Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec[%d]",i+1,i+1,i),"","colz");
+  //   //out_tree_SF_sec->Draw(Form("Sampling_Fraction_Sec_%d:Momentum_for_Sec_%d>> SFHsec[%d]",i+1,i+1,i),"","colz");
+  // }
 
   out->Close();
 
 
 
-  //Saving PDFs
-  W_Range->SaveAs("w_in_different_Q2_Ranges.pdf","pdf");
-  BEVAngle->SaveAs("BEVAngle.pdf","pdf");
-  BESecs->SaveAs("BESecs.pdf","pdf");
-  ThetaPhiP->SaveAs("ThetaPhiP.pdf","pdf");
-  ThetaPSecs->SaveAs("ThetaPSecs.pdf","pdf");
-  BETheta->SaveAs("BETheta.pdf","pdf");
-  SFSecs->SaveAs("SFSecs.pdf","pdf");
-  //SFAll->SaveAs("SFAll.pdf","pdf");
+  // //Saving PDFs
+  // W_Range->SaveAs("w_in_different_Q2_Ranges.pdf","pdf");
+  // BEVAngle->SaveAs("BEVAngle.pdf","pdf");
+  // BESecs->SaveAs("BESecs.pdf","pdf");
+  // ThetaPhiP->SaveAs("ThetaPhiP.pdf","pdf");
+  // ThetaPSecs->SaveAs("ThetaPSecs.pdf","pdf");
+  // BETheta->SaveAs("BETheta.pdf","pdf");
+  // //SFSecs->SaveAs("SFSecs.pdf","pdf");
+  // //SFAll->SaveAs("SFAll.pdf","pdf");
 
   auto finish = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = finish - start;
   std::cout << "Elapsed time: " << elapsed.count()<< " s events = "<<counter<< " \n";
 
-  //Organizing PDFs
-  system("ls");
-  system("mkdir PDFs_from_root/");
-  system(Form("mkdir PDFs_from_root/From_test%d",OutFileNum));
-  system(Form("mv *.pdf PDFs_from_root/From_test%d",OutFileNum));
-  system("ls");
+  // //Organizing PDFs
+  // system("ls");
+  // system("mkdir PDFs_from_root/");
+  // system(Form("mkdir PDFs_from_root/From_test%d",OutFileNum));
+  // system(Form("mv *.pdf PDFs_from_root/From_test%d",OutFileNum));
+  // system("ls");
 
 }
 
