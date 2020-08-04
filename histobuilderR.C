@@ -23,6 +23,7 @@
 #include <TLegend.h>
 #include <TF1.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 
 using namespace clas12;
 
@@ -83,19 +84,13 @@ void histobuilderR(){
 
   TH2F *SFH = new TH2F("SFH", "Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
 
-  TH2F *SFHs1 = new TH2F("SFHs1", "Sampling Fraction versus Momentum Histogram (Sec 1)", 600, 0, 12,  50, 0, 0.5);
-  TH2F *SFHs2 = new TH2F("SFHs2", "Sampling Fraction versus Momentum Histogram (Sec 2)", 600, 0, 12,  50, 0, 0.5);
-  TH2F *SFHs3 = new TH2F("SFHs3", "Sampling Fraction versus Momentum Histogram (Sec 3)", 600, 0, 12,  50, 0, 0.5);
-  TH2F *SFHs4 = new TH2F("SFHs4", "Sampling Fraction versus Momentum Histogram (Sec 4)", 600, 0, 12,  50, 0, 0.5);
-  TH2F *SFHs5 = new TH2F("SFHs5", "Sampling Fraction versus Momentum Histogram (Sec 5)", 600, 0, 12,  50, 0, 0.5);
-  TH2F *SFHs6 = new TH2F("SFHs6", "Sampling Fraction versus Momentum Histogram (Sec 6)", 600, 0, 12,  50, 0, 0.5);
+  TH2F *SFHs[6];
+  for(int i=0;i<6;i++){
+    SFHs[i] = new TH2F(Form("SFHs%d",i+1), Form("Sampling Fraction versus Momentum Histogram (Sec %d)",i+1), 600, 0, 12,  50, 0, 0.5);
+    SFHs[i]->GetXaxis()->SetTitle("Momentum (GeV)");
+    SFHs[i]->GetYaxis()->SetTitle("Sampling Fraction");
+  }
 
-  // TH1F *wHisto_s1 = new TH1F("wHisto_s1","wHisto_s1", 1000, 0, 5);
-  // TH1F *wHisto_s2 = new TH1F("wHisto_s2","wHisto_s2", 1000, 0, 5);
-  // TH1F *wHisto_s3 = new TH1F("wHisto_s3","wHisto_s3", 1000, 0, 5);
-  // TH1F *wHisto_s4 = new TH1F("wHisto_s4","wHisto_s4", 1000, 0, 5);
-  // TH1F *wHisto_s5 = new TH1F("wHisto_s5","wHisto_s5", 1000, 0, 5);
-  // TH1F *wHisto_s6 = new TH1F("wHisto_s6","wHisto_s6", 1000, 0, 5);
   TH1F *wHisto_all = new TH1F("wHisto_all","wHisto_all", 1000, 0, 5);
   TH1F *wHistoC_all = new TH1F("wHistoC_all","wHistoC_all", 240, 0, 1.2);
 
@@ -137,19 +132,24 @@ void histobuilderR(){
   // fitg->SetParLimits(2,0.08*0.8,0.08*1.2);
   // TF1 *fitTp = new TF1("fitTp","fitg(0) + fitB(3)",0,1.1);  
 
-  // fitT->SetParameter(0,1509);
-  // fitT->SetParLimits(0,1509*0.5,1509*1.5);
+  fitT->SetParameter(0,1512);
+  fitT->SetParLimits(0,1480,1600);
   fitT->SetParameter(1,0.97);
-  fitT->SetParLimits(1,0.97*0.8,0.97*1.2);
-  fitT->SetParameter(2,0.08);
-  fitT->SetParLimits(2,0.08*0.8,0.08*1.2);
+  fitT->SetParLimits(1,0.96,0.98);
+  fitT->SetParameter(2,0.07);
+  fitT->SetParLimits(2,0.06,0.09);
+  fitT->SetParameter(3,0);
+  fitT->SetParLimits(4,-10,80);
+  fitT->SetParLimits(5,-100,-20);
+
 
   TF1 *fitG[6][6];
   for(int i=0;i<6;i++){
     for(int n=0;n<6;n++){
-      fitG[i][n] = new TF1(Form("fitG_sec_%d_reg_%d",i+1,n+1),"[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))",-1,1);
+      fitG[i][n] = new TF1(Form("fitG_sec_%d_reg_%d",i+1,n+1),"[Amp]*exp(-0.5*((x-[peak])/[sigma])*((x-[peak])/[sigma]))",-1,1);
       fitG[i][n]->SetParameter(1,0);
       fitG[i][n]->SetParLimits(1,-1,1);
+      fitG[i][n]->SetParameter(2,0.4);
       fitG[i][n]->SetParLimits(2,-1,1);
     }
   }
@@ -161,13 +161,36 @@ void histobuilderR(){
   double ePdcMax[6][6];
   double ePdmMax[6][6];
 
-  double ePdcProjPeak[6][6];
-  double ePdcProjPeakError[6][6];
+  double ePdcProjPeaks1[6];
+  double ePdcProjPeakErrors1[6];
+  double ePdcProjPeaks2[6];
+  double ePdcProjPeakErrors2[6];
+  double ePdcProjPeaks3[6];
+  double ePdcProjPeakErrors3[6];
+  double ePdcProjPeaks4[6];
+  double ePdcProjPeakErrors4[6];
+  double ePdcProjPeaks5[6];
+  double ePdcProjPeakErrors5[6];
+  double ePdcProjPeaks6[6];
+  double ePdcProjPeakErrors6[6];
+
+  double ePdmProjPeaks1[6];
+  double ePdmProjPeakErrors1[6];
+  double ePdmProjPeaks2[6];
+  double ePdmProjPeakErrors2[6];
+  double ePdmProjPeaks3[6];
+  double ePdmProjPeakErrors3[6];
+  double ePdmProjPeaks4[6];
+  double ePdmProjPeakErrors4[6];
+  double ePdmProjPeaks5[6];
+  double ePdmProjPeakErrors5[6];
+  double ePdmProjPeaks6[6];
+  double ePdmProjPeakErrors6[6];
   
-  double ePmcProjPeak[6][6];
-  double ePmcProjPeakError[6][6];
-  
-  auto eCorEqM[6];
+  double XcorBins[]={6.8, 7.6, 8.4, 9.2, 10, 10.8};
+  double XcorBinsError[]={0.4, 0.4, 0.4, 0.4, 0.4, 0.4};
+
+  //auto *eCorEqM[6];
   
   ///// Making/Filling Canvases //////////
   
@@ -217,7 +240,6 @@ void histobuilderR(){
 
 
   //TGraph *ePpCor2[6];
-
   TCanvas *elecPCor2 = new TCanvas("elecPCor2","Change in Electron Momentum versus Electron Momentum (Measured)",200,10,700,780);
   elecPCor2->Divide(3,2);
   for(int i=0;i<6;i++){
@@ -227,7 +249,7 @@ void histobuilderR(){
     //ePpCor2[i]->Draw("same");
   }
 
-  std::cout<<"elecPCor2 Done"<<std::endl;
+  std::cout<<"elecPCor2 Started"<<std::endl;
 
 
 
@@ -243,7 +265,7 @@ void histobuilderR(){
     //ePpCor3[i]->Draw("same");
   }
 
-  std::cout<<"elecPCor3 Done"<<std::endl;
+  std::cout<<"elecPCor3 Started"<<std::endl;
 
 
 
@@ -265,49 +287,74 @@ void histobuilderR(){
       ProjYelecPCor2[i]->cd(n+1);
       projyCor2[i][n]->Draw();
       ePdmMax[i][n] = projyCor2[i][n]->GetXaxis()->GetBinCenter(projyCor2[i][n]->GetMaximumBin());
-      //projyCor2[i][n]->Fit("gaus");
       fitG[i][n]->SetParameter(0,projyCor2[i][n]->GetBinContent(projyCor2[i][n]->GetMaximumBin()));
       fitG[i][n]->SetParLimits(0,(projyCor2[i][n]->GetBinContent(projyCor2[i][n]->GetMaximumBin()))*0.8,(projyCor2[i][n]->GetBinContent(projyCor2[i][n]->GetMaximumBin()))*1.2);
       fitG[i][n]->SetParameter(1,ePdmMax[i][n]);
-      fitG[i][n]->SetParLimits(1,ePdmMax[i][n]*0.9,ePdmMax[i][n]*1.1);
+      if(ePdmMax[i][n]>0){
+	fitG[i][n]->SetParLimits(1,ePdmMax[i][n]*0.8,ePdmMax[i][n]*1.2);
+      }
+      if(ePdmMax[i][n]<0){
+        fitG[i][n]->SetParLimits(1,ePdmMax[i][n]*1.2,ePdmMax[i][n]*0.8);
+      } 
       projyCor2[i][n]->Fit(Form("fitG_sec_%d_reg_%d",i+1,n+1));
       gStyle->SetOptFit(11111111);
-      ePdmProjPeak[i][n]=fitG[i][n]->GetParameter(1);
-      ePdmProjPeak[i][n]=fitG[i][n]->GetParameter(2);
     }
-    //    eCorEqM[i] = new TGraphErrors(6,{6.8,
   }
 
-  // TH1D *projyCor2[6][5];
-  // TCanvas *ProjYelecPCor2 = new TCanvas("ProjYelecPCor2","Y Projection of Difference in Momentum (Measure)",200,10,700,780);
-  // ProjYelecPCor2->Divide(3,2);
-  // for(int n=0;n<5;n++){
-  //   //if(n<5){                                                                                                                                                                                           
-  //   for(int i=0;i<6;i++){
-  //     projyCor2[i][n] = elPCor2_s[i]->ProjectionY(Form("projY%d_Sec_%d",n+1,i+1),(4*n)+8,(4*n)+10);
-  //     projyCor2[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range:  %d to %d GeV",((2*n)+4),((2*n)+5)));
-  //     projyCor2[i][n]->GetXaxis()->SetTitle("Difference in Momentum (GeV)");
-  //     projyCor2[i][n]->SetLineColor(39+(2*i));
-  //     ePdmMax[i][n] = projyCor2[i][n]->GetXaxis()->GetBinCenter(projyCor2[i][n]->GetMaximumBin());
-  //   }
-  //   ProjYelecPCor2->cd(n+1);
-  //   projyCor2[0][n]->Draw();
-  //   projyCor2[1][n]->Draw("same");
-  //   projyCor2[2][n]->Draw("same");
-  //   projyCor2[3][n]->Draw("same");
-  //   projyCor2[4][n]->Draw("same");
-  //   projyCor2[5][n]->Draw("same");
-  // }
-
-  // TLegend *legendsec2;
-  // legendsec2= new TLegend(2,2,2,2);
-  // for(int i=0;i<6;i++){
-  //   legendsec2->AddEntry(projyCor2[i][0],Form("Sector %d",i+1));	
-  // }           
-  // ProjYelecPCor2->cd(6);
-  // legendsec2->Draw();
-
   std::cout<<"ProjYelecPCor2 Done"<<std::endl;
+
+
+
+
+  for(int n=0;n<6;n++){
+    ePdmProjPeaks1[n]=fitG[0][n]->GetParameter(1);
+    ePdmProjPeakErrors1[n]=fitG[0][n]->GetParameter(2);
+ 
+    ePdmProjPeaks2[n]=fitG[1][n]->GetParameter(1);
+    ePdmProjPeakErrors2[n]=fitG[1][n]->GetParameter(2);
+
+    ePdmProjPeaks3[n]=fitG[2][n]->GetParameter(1);
+    ePdmProjPeakErrors3[n]=fitG[2][n]->GetParameter(2);
+
+    ePdmProjPeaks4[n]=fitG[3][n]->GetParameter(1);
+    ePdmProjPeakErrors4[n]=fitG[3][n]->GetParameter(2);
+
+    ePdmProjPeaks5[n]=fitG[4][n]->GetParameter(1);
+    ePdmProjPeakErrors5[n]=fitG[4][n]->GetParameter(2);
+
+    ePdmProjPeaks6[n]=fitG[5][n]->GetParameter(1);
+    ePdmProjPeakErrors6[n]=fitG[5][n]->GetParameter(2);
+  }
+  auto eCorEqMs1 = new TGraphErrors(6, XcorBins, ePdmProjPeaks1, XcorBinsError, ePdmProjPeakErrors1);    
+  auto eCorEqMs2 = new TGraphErrors(6, XcorBins, ePdmProjPeaks2, XcorBinsError, ePdmProjPeakErrors2);
+  auto eCorEqMs3 = new TGraphErrors(6, XcorBins, ePdmProjPeaks3, XcorBinsError, ePdmProjPeakErrors3);
+  auto eCorEqMs4 = new TGraphErrors(6, XcorBins, ePdmProjPeaks4, XcorBinsError, ePdmProjPeakErrors4);
+  auto eCorEqMs5 = new TGraphErrors(6, XcorBins, ePdmProjPeaks5, XcorBinsError, ePdmProjPeakErrors5);
+  auto eCorEqMs6 = new TGraphErrors(6, XcorBins, ePdmProjPeaks6, XcorBinsError, ePdmProjPeakErrors6);
+  for(int i=0;i<6;i++){
+    elecPCor2->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Difference_Sec_%d:el_p_Measured_Sec_%d>> elPCor2_s%d",i+1,i+1,i+1),"","colz");
+    if(i==0){
+      eCorEqMs1->Draw("same");                                                                                                                                                                            
+    }
+    if(i==1){
+      eCorEqMs2->Draw("same");
+    }
+    if(i==2){
+      eCorEqMs3->Draw("same");
+    }
+    if(i==3){
+      eCorEqMs4->Draw("same");
+    }
+    if(i==4){
+      eCorEqMs5->Draw("same");
+    }
+    if(i==5){
+      eCorEqMs6->Draw("same");
+    }
+  }
+
+  std::cout<<"elecPCor2 Done"<<std::endl;
 
 
 
@@ -324,7 +371,7 @@ void histobuilderR(){
       }
       if(n>0){
         projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),n+8,n+9);
-        projyCor3[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range: %f to %f GeV", (0.8*n)+6.4, (0.8*n)+7.2));
+        projyCor3[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range: %4.1f to %4.1f GeV", (0.8*n)+6.4, (0.8*n)+7.2));
       } 
       // projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),(2*n)+8,(2*n)+10);
       // projyCor3[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range: %d to %d GeV", n+4, n+5));
@@ -332,17 +379,73 @@ void histobuilderR(){
       ProjYelecPCor3[i]->cd(n+1);
       projyCor3[i][n]->Draw();
       ePdcMax[i][n] = projyCor3[i][n]->GetXaxis()->GetBinCenter(projyCor3[i][n]->GetMaximumBin());
-      //projyCor3[i][n]->Fit("gaus");
       fitG[i][n]->SetParameter(0,projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()));
-      fitG[i][n]->SetParLimits(0,(projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()))*0.9,(projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()))*1.1);
+      fitG[i][n]->SetParLimits(0,(projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()))*0.8,(projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()))*1.2);
       fitG[i][n]->SetParameter(1,ePdcMax[i][n]);
-      fitG[i][n]->SetParLimits(1,ePdcMax[i][n]*0.95,ePdcMax[i][n]*1.05);
+      if(ePdcMax[i][n]>0){
+	fitG[i][n]->SetParLimits(1,ePdcMax[i][n]*0.8,ePdcMax[i][n]*1.2);
+      }
+      if(ePdcMax[i][n]<0){
+        fitG[i][n]->SetParLimits(1,ePdcMax[i][n]*1.2,ePdcMax[i][n]*0.8);
+      }
       projyCor3[i][n]->Fit(Form("fitG_sec_%d_reg_%d",i+1,n+1));
       gStyle->SetOptFit(11111111);
     }
   }
 
   std::cout<<"ProjYelecPCor3 Done"<<std::endl;
+
+
+
+  for(int n=0;n<6;n++){
+    ePdcProjPeaks1[n]=fitG[0][n]->GetParameter(1);
+    ePdcProjPeakErrors1[n]=fitG[0][n]->GetParameter(2);
+
+    ePdcProjPeaks2[n]=fitG[1][n]->GetParameter(1);
+    ePdcProjPeakErrors2[n]=fitG[1][n]->GetParameter(2);
+
+    ePdcProjPeaks3[n]=fitG[2][n]->GetParameter(1);
+    ePdcProjPeakErrors3[n]=fitG[2][n]->GetParameter(2);
+
+    ePdcProjPeaks4[n]=fitG[3][n]->GetParameter(1);
+    ePdcProjPeakErrors4[n]=fitG[3][n]->GetParameter(2);
+
+    ePdcProjPeaks5[n]=fitG[4][n]->GetParameter(1);
+    ePdcProjPeakErrors5[n]=fitG[4][n]->GetParameter(2);
+
+    ePdcProjPeaks6[n]=fitG[5][n]->GetParameter(1);
+    ePdcProjPeakErrors6[n]=fitG[5][n]->GetParameter(2);
+  }
+  auto eCorEqCs1 = new TGraphErrors(6, XcorBins, ePdcProjPeaks1, XcorBinsError, ePdcProjPeakErrors1);
+  auto eCorEqCs2 = new TGraphErrors(6, XcorBins, ePdcProjPeaks2, XcorBinsError, ePdcProjPeakErrors2);
+  auto eCorEqCs3 = new TGraphErrors(6, XcorBins, ePdcProjPeaks3, XcorBinsError, ePdcProjPeakErrors3);
+  auto eCorEqCs4 = new TGraphErrors(6, XcorBins, ePdcProjPeaks4, XcorBinsError, ePdcProjPeakErrors4);
+  auto eCorEqCs5 = new TGraphErrors(6, XcorBins, ePdcProjPeaks5, XcorBinsError, ePdcProjPeakErrors5);
+  auto eCorEqCs6 = new TGraphErrors(6, XcorBins, ePdcProjPeaks6, XcorBinsError, ePdcProjPeakErrors6);
+  for(int i=0;i<6;i++){
+    elecPCor3->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Difference_Sec_%d:el_p_Calculated_Sec_%d>> elPCor3_s%d",i+1,i+1,i+1),"","colz");   
+    if(i==0){
+      eCorEqCs1->Draw("same");
+    }
+    if(i==1){
+      eCorEqCs2->Draw("same");
+    }
+    if(i==2){
+      eCorEqCs3->Draw("same");
+    }
+    if(i==3){
+      eCorEqCs4->Draw("same");
+    }
+    if(i==4){
+      eCorEqCs5->Draw("same");
+    }
+    if(i==5){
+      eCorEqCs6->Draw("same");
+    }
+  }
+
+  std::cout<<"elecPCor3 Done"<<std::endl;
 
 
 

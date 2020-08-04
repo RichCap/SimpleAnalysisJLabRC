@@ -3,7 +3,7 @@ This is the notes on my code for analyzing the hipo file data
 
 
 Most Recent Changes:
-* Fixed simpleAnaL.C to select elastic events for momentum correction calculations
+* histobuilderR.C now plots the projections' peaks with error bars onto the change in momentum versus momomentum graphs
 * Developed histobuilderR.C's ability to make better fits (Work in Progress)
 
 

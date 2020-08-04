@@ -613,7 +613,7 @@ void simpleAnaLC(){
 	    elPcal=eBeam/(1+((2*eBeam*TMath::Sin(el.Theta()/2)*TMath::Sin(el.Theta()/2))/(db->GetParticle(2212)->Mass())));
 
        	    if(el.E() > 0){
-	      if(kin_W(el, eBeam)<1.2){
+	      if(kin_W(el, eBeam)<1.1){
 		//p4_ele_p_Sec[secNum-1].push_back(el.P());
 		el_p_Measured[secNum-1].push_back(el.P());
 		el_p_Calculated[secNum-1].push_back(elPcal);
