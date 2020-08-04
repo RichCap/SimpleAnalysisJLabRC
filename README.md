@@ -3,9 +3,9 @@ This is the notes on my code for analyzing the hipo file data
 
 
 Most Recent Changes:
-* Attempted to make simpleAnaLC.C run faster during its calculation of SF
-* Added more to histobuilderR.C
-* simpleAnaLC.C is even less responsible for 2D histograms (moving this responsibility over to histobuilderR.C)
+* Fixed simpleAnaL.C to select elastic events for momentum correction calculations
+* Developed histobuilderR.C's ability to make better fits (Work in Progress)
+
 
 Instructions on running:
 1) Use ./toConvert.sh to have simpleAnaLC.C begin processing data.

@@ -56,6 +56,9 @@ TH2F *wq2Histo = new TH2F("wq2Histo", "wq2Histo",  1000, 0, 5,  1000, 0, 10);
 vector<double> wHistoV[7];
 vector<double> q2HistoV[7];
 
+vector<double> wHistoVC[7];
+vector<double> q2HistoVC[7];
+
 double kin_W(TLorentzVector ele, float Ebeam){
   TLorentzVector beam(0,0,Ebeam,Ebeam);
   TLorentzVector target(0,0,0,0.93827);
@@ -308,10 +311,13 @@ void simpleAnaLC(){
   for(int i=0;i<6;i++){
     out_tree_w_and_q2.Branch(Form("wHistoV_Sec_%d",i+1),&wHistoV[i]);
     out_tree_w_and_q2.Branch(Form("q2HistoV_Sec_%d",i+1),&q2HistoV[i]);
+    out_tree_w_and_q2.Branch(Form("wHistoVC_Sec_%d",i+1),&wHistoVC[i]);
+    out_tree_w_and_q2.Branch(Form("q2HistoVC_Sec_%d",i+1),&q2HistoVC[i]);
   }
   out_tree_w_and_q2.Branch("wHistoV",&wHistoV[6]);
   out_tree_w_and_q2.Branch("q2HistoV",&q2HistoV[6]);
-
+  out_tree_w_and_q2.Branch("wHistoVC",&wHistoVC[6]);
+  out_tree_w_and_q2.Branch("q2HistoVC",&q2HistoVC[6]);
 
   //End of TTree creation
 
@@ -365,6 +371,8 @@ void simpleAnaLC(){
       proThetaM[i].clear();
       wHistoV[i].clear();
       q2HistoV[i].clear();
+      wHistoVC[i].clear();
+      q2HistoVC[i].clear();
     }
     SFvector[6].clear();
     SFmomentumVector[6].clear();
@@ -372,6 +380,8 @@ void simpleAnaLC(){
     proThetaM[6].clear();
     wHistoV[6].clear();
     q2HistoV[6].clear();
+    wHistoVC[6].clear();
+    q2HistoVC[6].clear();
 
     for(int i=0;i<10;i++){
       wHisto_RangeAll[i].clear();
@@ -580,6 +590,14 @@ void simpleAnaLC(){
 	    q2HistoV[secNum-1].push_back(kin_Q2(el, eBeam));       	    
             q2HistoV[6].push_back(kin_Q2(el, eBeam));
 
+	    //Below is the w and q2 with cut
+	    if(kin_W(el, eBeam)<1.2){
+	      wHistoVC[secNum-1].push_back(kin_W(el, eBeam));
+	      wHistoVC[6].push_back(kin_W(el, eBeam));
+	      q2HistoVC[secNum-1].push_back(kin_Q2(el, eBeam));
+	      q2HistoVC[6].push_back(kin_Q2(el, eBeam));
+	    }
+
        	    //Below is MINE
 	    p4_ele_pR[secNum-1].push_back(el.P());
        	    p4_ele_pTh[secNum-1].push_back(el.Theta()*180/PI);
@@ -595,12 +613,13 @@ void simpleAnaLC(){
 	    elPcal=eBeam/(1+((2*eBeam*TMath::Sin(el.Theta()/2)*TMath::Sin(el.Theta()/2))/(db->GetParticle(2212)->Mass())));
 
        	    if(el.E() > 0){
-       	      //p4_ele_p_Sec[secNum-1].push_back(el.P());
-	      el_p_Measured[secNum-1].push_back(el.P());
-	      el_p_Calculated[secNum-1].push_back(elPcal);
-	      el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+	      if(kin_W(el, eBeam)<1.2){
+		//p4_ele_p_Sec[secNum-1].push_back(el.P());
+		el_p_Measured[secNum-1].push_back(el.P());
+		el_p_Calculated[secNum-1].push_back(elPcal);
+		el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+	      }
 	    }
-
 
 	    //Below is commented to remove 2D histograms
        	    // ThetaVPHisto->Fill(el.P(),el.Theta()*180/PI);
@@ -690,15 +709,15 @@ void simpleAnaLC(){
               int pindex2 = PartCalorimeter.getInt("pindex",PCALSize-t);
               int detector2 = PartCalorimeter.getInt("detector",PCALSize-t);
 
-              float energy3 = PartCalorimeter.getFloat("energy",Nint(PCALSize/2)-t);
-              int layer3 = PartCalorimeter.getInt("layer",Nint(PCALSize/2)-t);
-              int pindex3 = PartCalorimeter.getInt("pindex",Nint(PCALSize/2)-t);
-              int detector3 = PartCalorimeter.getInt("detector",Nint(PCALSize/2)-t);
+              float energy3 = PartCalorimeter.getFloat("energy",TMath::Nint(PCALSize/2)-t);
+              int layer3 = PartCalorimeter.getInt("layer",TMath::Nint(PCALSize/2)-t);
+              int pindex3 = PartCalorimeter.getInt("pindex",TMath::Nint(PCALSize/2)-t);
+              int detector3 = PartCalorimeter.getInt("detector",TMath::Nint(PCALSize/2)-t);
 
-              float energy4 = PartCalorimeter.getFloat("energy",Nint(PCALSize/2)+t);
-              int layer4 = PartCalorimeter.getInt("layer",Nint(PCALSize/2)+t);
-              int pindex4 = PartCalorimeter.getInt("pindex",Nint(PCALSize/2)+t);
-              int detector4 = PartCalorimeter.getInt("detector",Nint(PCALSize/2)+t);
+              float energy4 = PartCalorimeter.getFloat("energy",TMath::Nint(PCALSize/2)+t);
+              int layer4 = PartCalorimeter.getInt("layer",TMath::Nint(PCALSize/2)+t);
+              int pindex4 = PartCalorimeter.getInt("pindex",TMath::Nint(PCALSize/2)+t);
+              int detector4 = PartCalorimeter.getInt("detector",TMath::Nint(PCALSize/2)+t);
 
 	      if (pindex == 0 && detector == 7){
 		if (layer == 1){
@@ -752,7 +771,7 @@ void simpleAnaLC(){
                 t=PCALSize+1;
               }
 
-	      if((t >= (Nint(PCALSize/2)-t)) && ((PCALSize-t) <= (Nint(PCALSize/2)+t))){
+	      if((t >= (TMath::Nint(PCALSize/2)-t)) && ((PCALSize-t) <= (TMath::Nint(PCALSize/2)+t))){
 		t=PCALSize+1;
 	      }
 
