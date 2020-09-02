@@ -4,7 +4,8 @@ This is the notes on my code for analyzing the hipo file data
 
 Most Recent Changes:
 * histobuilderR.C plots the projections' peaks with error bars onto the change in momentum versus momomentum graphs (Improved binning)
-* histobuilderR.C now also gives line fits for the above projections' peaks (Equations are ready to be moved into simpleAnaLC.C for calculation of corrected momentum)
+* histobuilderR.C now also gives line fits for the above projections' peaks 
+* Initial test of adding the above equations into simpleAnaLC.C has begun
 * Developed histobuilderR.C's ability to make better fits
 * Changed range of elastic scattering cut in simpleAnaLC.C to w<1.1 instead of w<1.2 (peak positions described above are better for analysis in this range)
 * elecPCal3 has not been updated along with elecPCal2 (ignore the projections of this histogram until further developments are made)

@@ -59,6 +59,14 @@ vector<double> q2HistoV[7];
 vector<double> wHistoVC[7];
 vector<double> q2HistoVC[7];
 
+vector<double> wHistoVCor[7];
+vector<double> q2HistoVCor[7];
+
+vector<double> wHistoVCCor[7];
+vector<double> q2HistoVCCor[7];
+
+
+
 double kin_W(TLorentzVector ele, float Ebeam){
   TLorentzVector beam(0,0,Ebeam,Ebeam);
   TLorentzVector target(0,0,0,0.93827);
@@ -174,7 +182,8 @@ void simpleAnaLC(){
   //Below is a test of the tree histograms for Sampling Fraction
   vector<double> SFvector[7];
   vector<double> SFmomentumVector[7];
-
+  vector<double> SFvectorCor[7];
+  vector<double> SFmomentumVectorCor[7];
   
 
   for(Int_t i=1;i<gApplication->Argc();i++){
@@ -204,7 +213,8 @@ void simpleAnaLC(){
   TLorentzVector target(0,0,0,db->GetParticle(2212)->Mass());  
   TLorentzVector q;
   TLorentzVector pro;
-  
+  TLorentzVector elCor;
+
 
   auto start = std::chrono::high_resolution_clock::now();
 
@@ -268,10 +278,14 @@ void simpleAnaLC(){
   for(int i=0;i<6;i++){
     out_tree_SF_sec.Branch(Form("Sampling_Fraction_Sec_%d",i+1),&SFvector[i]);
     out_tree_SF_sec.Branch(Form("Momentum_for_Sec_%d",i+1),&SFmomentumVector[i]);
+    //Below is the corrected trees
+    out_tree_SF_sec.Branch(Form("Sampling_Fraction_Sec_%d_Corrected",i+1),&SFvectorCor[i]);
+    out_tree_SF_sec.Branch(Form("Momentum_for_Sec_%d_Corrected",i+1),&SFmomentumVectorCor[i]);
   }
   out_tree_SF_sec.Branch("Sampling_Fraction_All",&SFvector[6]);
   out_tree_SF_sec.Branch("Momentum_for_All",&SFmomentumVector[6]);
-  
+  out_tree_SF_sec.Branch(Form("Sampling_Fraction_Sec_%d_Corrected",i+1),&SFvectorCor[6]);
+  out_tree_SF_sec.Branch(Form("Momentum_for_Sec_%d_Corrected",i+1),&SFmomentumVectorCor[6]);
 
   //Below is to contain all the beam energy data
   TTree out_tree_BE("out_tree_BE","out_tree_BE");
@@ -313,12 +327,21 @@ void simpleAnaLC(){
     out_tree_w_and_q2.Branch(Form("q2HistoV_Sec_%d",i+1),&q2HistoV[i]);
     out_tree_w_and_q2.Branch(Form("wHistoVC_Sec_%d",i+1),&wHistoVC[i]);
     out_tree_w_and_q2.Branch(Form("q2HistoVC_Sec_%d",i+1),&q2HistoVC[i]);
+
+    out_tree_w_and_q2.Branch(Form("wHistoV_Sec_%d_Cor",i+1),&wHistoVCor[i]);
+    out_tree_w_and_q2.Branch(Form("q2HistoV_Sec_%d_Cor",i+1),&q2HistoVCor[i]);
+    out_tree_w_and_q2.Branch(Form("wHistoVC_Sec_%d_Cor",i+1),&wHistoVCCor[i]);
+    out_tree_w_and_q2.Branch(Form("q2HistoVC_Sec_%d_Cor",i+1),&q2HistoVCCor[i]);
   }
   out_tree_w_and_q2.Branch("wHistoV",&wHistoV[6]);
   out_tree_w_and_q2.Branch("q2HistoV",&q2HistoV[6]);
   out_tree_w_and_q2.Branch("wHistoVC",&wHistoVC[6]);
   out_tree_w_and_q2.Branch("q2HistoVC",&q2HistoVC[6]);
 
+  out_tree_w_and_q2.Branch("wHistoVCor",&wHistoVCor[6]);
+  out_tree_w_and_q2.Branch("q2HistoVCor",&q2HistoVCor[6]);
+  out_tree_w_and_q2.Branch("wHistoVCCor",&wHistoVCCor[6]);
+  out_tree_w_and_q2.Branch("q2HistoVCCor",&q2HistoVCCor[6]);
   //End of TTree creation
 
 
@@ -344,6 +367,10 @@ void simpleAnaLC(){
   int ProOelQ1=0;
   int ProOelQ2=0;
   //if ProOelQ2 is 1, then eBeam will be determined by the equation with the proton. Otherwise, only electron data will be used
+
+  //Below is for the corrected momentum value
+  double elecPchange=0;
+  double elecPCorrected=0;
 
   while(reader.next()==true){
     p4_ele_px.clear();
@@ -373,6 +400,12 @@ void simpleAnaLC(){
       q2HistoV[i].clear();
       wHistoVC[i].clear();
       q2HistoVC[i].clear();
+      SFvectorCor[i].clear();
+      SFmomentumVectorCor[i].clear();
+      wHistoVCor[i].clear();
+      q2HistoVCor[i].clear();
+      wHistoVCCor[i].clear();
+      q2HistoVCCor[i].clear();
     }
     SFvector[6].clear();
     SFmomentumVector[6].clear();
@@ -382,6 +415,12 @@ void simpleAnaLC(){
     q2HistoV[6].clear();
     wHistoVC[6].clear();
     q2HistoVC[6].clear();
+    SFvectorCor[6].clear();
+    SFmomentumVectorCor[6].clear();
+    wHistoVCor[6].clear();
+    q2HistoVCor[6].clear();
+    wHistoVCCor[6].clear();
+    q2HistoVCCor[6].clear();
 
     for(int i=0;i<10;i++){
       wHisto_RangeAll[i].clear();
@@ -471,6 +510,37 @@ void simpleAnaLC(){
 	  
 	  double pred_e_beam_from_angles = ((db->GetParticle(2212)->Mass())*el.P())/((db->GetParticle(2212)->Mass())-el.P()+(el.P()*TMath::Cos(el.Theta())));
 	 
+	  //Below is for momentum correction using histotest.root
+	  if(secNum==1){
+	    //Sec 1 equation
+	    elecPchange = -0.270603*el.P()+0.025182;
+	  }
+          if(secNum==2){
+            //Sec 2 equation
+	    elecPchange = 0.00706641*el.P()-0.00466279;
+          }
+          if(secNum==3){
+            //Sec 3 equation
+	    elecPchange = -0.310751*el.P()+0.035505;
+          }
+          if(secNum==4){
+            //Sec 4 equation
+	    elecPchange = -0.346706*el.P()+0.0335085;
+          }
+          if(secNum==5){
+            //Sec 5 equation
+	    elecPchange = -0.371143*el.P()+0.0365463;
+          }
+          if(secNum==6){
+            //Sec 6 equation
+	    elecPchange = 0.00534595*el.P()-0.00283626;
+          }
+
+	  elecPCorrected = el.P() + elecPchange;
+	  elCor.SetXYZM(elecPCorrected*TMath::Sin(el.Theta())*TMath::Cos(el.Phi()), elecPCorrected*TMath::Sin(el.Theta())*TMath::Sin(el.Phi()), elecPCorrected*TMath::Cos(el.Theta()), db->GetParticle(11)->Mass());
+
+	  double pred_e_beam_from_angles_cor1 = ((db->GetParticle(2212)->Mass())*elecPCorrected)/((db->GetParticle(2212)->Mass())-elecPCorrected+(elecPCorrected*TMath::Cos(el.Theta())));
+
 	  ProOelQ1=1;
 
 
@@ -590,6 +660,12 @@ void simpleAnaLC(){
 	    q2HistoV[secNum-1].push_back(kin_Q2(el, eBeam));       	    
             q2HistoV[6].push_back(kin_Q2(el, eBeam));
 
+	    //Below is corrected w and q2 histograms
+            wHistoVCor[secNum-1].push_back(kin_W(elCor, eBeam));
+            wHistoVCor[6].push_back(kin_W(elCor, eBeam));
+            q2HistoVCor[secNum-1].push_back(kin_Q2(elCor, eBeam));
+            q2HistoVCor[6].push_back(kin_Q2(elCor, eBeam));
+
 	    //Below is the w and q2 with cut
 	    if(kin_W(el, eBeam)<1.2){
 	      wHistoVC[secNum-1].push_back(kin_W(el, eBeam));
@@ -597,6 +673,14 @@ void simpleAnaLC(){
 	      q2HistoVC[secNum-1].push_back(kin_Q2(el, eBeam));
 	      q2HistoVC[6].push_back(kin_Q2(el, eBeam));
 	    }
+
+            //Below is the w and q2 with cut (for elCor)
+            if(kin_W(elCor, eBeam)<1.2){
+              wHistoVCCor[secNum-1].push_back(kin_W(elCor, eBeam));
+              wHistoVCCor[6].push_back(kin_W(elCor, eBeam));
+              q2HistoVCCor[secNum-1].push_back(kin_Q2(elCor, eBeam));
+              q2HistoVCCor[6].push_back(kin_Q2(elCor, eBeam));
+            }
 
        	    //Below is MINE
 	    p4_ele_pR[secNum-1].push_back(el.P());
@@ -697,6 +781,7 @@ void simpleAnaLC(){
 	    double ECOE=0;
 	    double PCALE=0;
 	    double SFt=0;
+	    double SFtCor=0;
 
 	    for(int t=0;t<PCALSize;t++){
 	      float energy = PartCalorimeter.getFloat("energy",t);
@@ -781,6 +866,7 @@ void simpleAnaLC(){
 	      }
 	    }
 	    SFt=(PCALE+ECE+ECOE)/el.P();
+	    SFtCor=(PCALE+ECE+ECOE)/elecPCorrected;
 	    //SamplingFractionHisto->Fill(el.P(),SFt);
 	    //SFHistoSec[secNum-1]->Fill(el.P(),SFt);
 	    //if(SFt<=1 && SFt>=0 && el.P()>0){
@@ -788,6 +874,10 @@ void simpleAnaLC(){
 	    SFvector[6].push_back(SFt);
 	    SFmomentumVector[secNum-1].push_back(el.P());
 	    SFmomentumVector[6].push_back(el.P());
+            SFvectorCor[secNum-1].push_back(SFtCor);
+            SFvectorCor[6].push_back(SFtCor);
+            SFmomentumVectorCor[secNum-1].push_back(elecPCorrected);
+            SFmomentumVectorCor[6].push_back(elecPCorrected);
 	    //}
 	    //End of Sampling Fraction loop
 
