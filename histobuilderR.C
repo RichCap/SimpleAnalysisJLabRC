@@ -31,7 +31,7 @@ using namespace clas12;
 void histobuilderR(){
 
   //Preparing Code                                                                                                                                                                         
-  int OutFileNum=18;
+  int OutFileNum=19;
   
   TString inputFile;
  
@@ -76,12 +76,15 @@ void histobuilderR(){
   TTree *SF_sec=(TTree*)InF->Get("out_tree_SF_sec"); 
   TTree *w_and_q2=(TTree*)InF->Get("out_tree_w_and_q2");
   TTree *electron_momentum=(TTree*)InF->Get("out_tree_electron_momentum");
-
+  TTree *SF_sec_Cor=(TTree*)InF->Get("out_tree_SF_sec_Cor");
+  TTree *w_and_q2_Cor=(TTree*)InF->Get("out_tree_w_and_q2_Cor");
   
   //////// Making histograms //////////// 
 
 
   TH2F *SFH = new TH2F("SFH", "Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
+  SFH->GetXaxis()->SetTitle("Momentum (GeV)");
+  SFH->GetYaxis()->SetTitle("Sampling Fraction");
 
   TH2F *SFHs[6];
   for(int i=0;i<6;i++){
@@ -109,6 +112,25 @@ void histobuilderR(){
     elPM_s[i] = new TH1F(Form("elPM_s%d",i+1),Form("Measured Electron Momentum (Sec %d)",i+1), 240, 0, 12);
     elPCor2_s[i] = new TH2F(Form("elPCor2_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.6);
     elPCor3_s[i] = new TH2F(Form("elPCor3_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.6);
+  }
+
+  TH1F *wHisto_all_Cor = new TH1F("wHisto_all_Cor","wHisto_all_Cor", 1000, 0, 5);
+  TH1F *wHistoC_all_Cor = new TH1F("wHistoC_all_Cor","wHistoC_all_Cor", 240, 0, 1.2);
+
+  TH1F *wHisto_s_Cor[6];
+  for(int i=0;i<6;i++){
+    wHisto_s_Cor[i] = new TH1F(Form("wHisto_s%d_Cor",i+1),Form("wHisto_s%d_Cor",i+1), 1000, 0, 5);
+  }
+
+  TH2F *SFHCor = new TH2F("SFHCor", "Corrected Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
+  SFHCor->GetXaxis()->SetTitle("Momentum (GeV)");
+  SFHCor->GetYaxis()->SetTitle("Sampling Fraction");
+
+  TH2F *SFHsCor[6];
+  for(int i=0;i<6;i++){
+    SFHsCor[i] = new TH2F(Form("SFHs%d_Cor",i+1), Form("Corrected Sampling Fraction versus Momentum Histogram (Sec %d)",i+1), 600, 0, 12,  50, 0, 0.5);
+    SFHsCor[i]->GetXaxis()->SetTitle("Momentum (GeV)");
+    SFHsCor[i]->GetYaxis()->SetTitle("Sampling Fraction");
   }
 
   ///// Making fits for histograms ///////
@@ -628,6 +650,58 @@ void histobuilderR(){
 
 
 
+  TCanvas *wHVsecsCor = new TCanvas("wHVsecsCor","wHisto Corrected (by sector)",200,10,700,780);
+  wHVsecsCor->Divide(3,2);
+  for(int i=0;i<6;i++){
+    wHVsecsCor->cd(i+1);
+    w_and_q2_Cor->Draw(Form("wHistoV_Sec_%d_Cor>> wHisto_s%d_Cor",i+1,i+1));
+  }
+
+  std::cout<<"wHVsecsCor Done"<<std::endl;
+
+
+
+
+  TCanvas *wHVallCor =new TCanvas("wHVallCor","wHisto (Corrected)",200,10,700,780);
+  wHVallCor->cd();
+  w_and_q2_Cor->Draw("wHistoVCor>> wHisto_all_Cor");
+  //wHisto_all_Cor->ShowBackground(50,"same");                                                                                                                                                                  
+  wHisto_all_Cor->Fit("fitT","R",0,1.2);
+  gStyle->SetOptFit(1111111);
+
+  std::cout<<"wHVallCor Done"<<std::endl;
+
+
+
+  TCanvas *wHVall2Cor =new TCanvas("wHVall2Cor","wHisto2 (Corrected)",200,10,700,780);
+  wHVall2Cor->cd();
+  w_and_q2_Cor->Draw("wHistoVCCor>> wHistoC_all_Cor");
+  //wHisto_all_Cor->ShowBackground(50,"same");                                                                                                                                                                  
+  wHistoC_all_Cor->Fit("fitT","R",0,1.1);
+  gStyle->SetOptFit(1111111);
+
+  std::cout<<"wHVall2Cor Done"<<std::endl;
+
+
+
+  TCanvas *SFallCor = new TCanvas("SFallCor","Corrected Sampling Fraction Histogram (All Sectors)",200,10,700,780);
+  SFallCor->cd();
+  SF_sec_Cor->Draw("Sampling_Fraction_Corrected:Momentum_Corrected_SF>> SFHCor","","colz");
+
+  std::cout<<"SFallCor Done"<<std::endl;
+
+
+
+  TCanvas *SFsecsCor = new TCanvas("SFsecsCor","Corrected Sampling Fraction Histograms (by sector)",200,10,700,780);
+  SFsecsCor->Divide(3,2);
+  for(int i=0;i<6;i++){
+    SFsecsCor->cd(i+1);
+    SF_sec_Cor->Draw(Form("Sampling_Fraction_Sec_%d_Corrected:Momentum_for_Sec_%d_Corrected>> SFHs%d_Cor",i+1,i+1,i+1),"","colz");
+  }
+
+  std::cout<<"SFsecsCor Done"<<std::endl;
+
+
 
   /////////// Saving Outfile /////////////
   
@@ -641,11 +715,22 @@ void histobuilderR(){
   SFall->Write();
   SFsecs->Write();
 
+  outH->mkdir("SF/Corrected");
+  outH->cd("SF/Corrected");
+  SFallCor->Write();
+  SFsecsCor->Write();
+
   outH->mkdir("wHistos");
   outH->cd("wHistos");
   wHVsecs->Write();
   wHVall->Write();
   wHVall2->Write();
+
+  outH->mkdir("wHistos/Corrected");
+  outH->cd("wHistos/Corrected");
+  wHVsecsCor->Write();
+  wHVallCor->Write();
+  wHVall2Cor->Write();
 
   outH->mkdir("eMomentum");
   outH->cd("eMomentum");
