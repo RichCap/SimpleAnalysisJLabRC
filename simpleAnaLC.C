@@ -26,6 +26,27 @@ using namespace clas12;
 
 double PI= 3.14159265358979323846;
 
+//Below are the elastic peak ranges used for the momentum correction calculations (from histobuilderR.C)
+//Sec 1
+double wMinRange1 = 0.802237;
+double wMaxRange1 = 1.15776;
+//Sec 2
+double wMinRange2 = 0.812355;
+double wMaxRange2 = 1.14764;
+//Sec 3
+double wMinRange3 = 0.78;
+double wMaxRange3 = 1.14;
+//Sec 4
+double wMinRange4 = 0.816648;
+double wMaxRange4 = 1.14335;
+//Sec 5
+double wMinRange5 = 0.804375;
+double wMaxRange5 = 1.15027;
+//Sec 6
+double wMinRange6 = 0.795966;
+double wMaxRange6 = 1.15597;
+
+
 int helicity;
 double fCup;
 vector<int> sectorE;
@@ -472,33 +493,77 @@ void simpleAnaLC(){
 	  
 	  double pred_e_beam_from_angles = ((db->GetParticle(2212)->Mass())*el.P())/((db->GetParticle(2212)->Mass())-el.P()+(el.P()*TMath::Cos(el.Theta())));
 	 
-	  //Below is for momentum correction using histotest.root
-	  if(secNum==1){
-	    //Sec 1 equation
-	    elecPchange = -0.270603*el.P()+0.025182;
-	  }
-          if(secNum==2){
-            //Sec 2 equation
-	    elecPchange = 0.00706641*el.P()-0.00466279;
-          }
-          if(secNum==3){
-            //Sec 3 equation
-	    elecPchange = -0.310751*el.P()+0.035505;
-          }
-          if(secNum==4){
-            //Sec 4 equation
-	    elecPchange = -0.346706*el.P()+0.0335085;
-          }
-          if(secNum==5){
-            //Sec 5 equation
-	    elecPchange = -0.371143*el.P()+0.0365463;
-          }
-          if(secNum==6){
-            //Sec 6 equation
-	    elecPchange = 0.00534595*el.P()-0.00283626;
-          }
+	  int EPCorQ=1;//If equations from elecPCor are used, let this be equal to 1. If equations from elecPCor2 are used, let it be equal to 2.
 
-	  elecPCorrected = el.P() + elecPchange;
+	  //Below is for momentum correction using histotest.root
+	  if((el.P()>8 && el.P()<9.8) || EPCorQ==1){
+	    if(secNum==1){
+	      if(kin_W(el, eBeam) >= wMinRange1 && kin_W(el, eBeam) <= wMaxRange1){
+		//Sec 1 equation
+		//elecPchange = -0.333295*el.P()+0.0313791;
+		elecPchange = -0.0351726;
+	      }
+	      if(kin_W(el, eBeam) <  wMinRange1 || kin_W(el, eBeam) > wMaxRange1){
+		elecPchange = 0;//Do NOT change this value
+	      }
+	    }
+	    if(secNum==2){
+	      if(kin_W(el, eBeam) >= wMinRange2 && kin_W(el, eBeam) <= wMaxRange2){
+		//Sec 2 equation
+		//elecPchange = -0.113116*el.P()+0.00789604;
+		elecPchange = -0.0394837;
+	      }
+              if(kin_W(el, eBeam) <  wMinRange2 || kin_W(el, eBeam) > wMaxRange2){
+                elecPchange = 0;//Do NOT change this value
+              }
+	    }
+	    if(secNum==3){
+	      if(kin_W(el, eBeam) >= wMinRange3 && kin_W(el, eBeam) <= wMaxRange3){
+		//Sec 3 equation
+		//elecPchange = -0.278161*el.P()+0.0319661;
+		elecPchange = 0.018557;
+	      }
+              if(kin_W(el, eBeam) <  wMinRange3 || kin_W(el, eBeam) > wMaxRange3){
+                elecPchange = 0;//Do NOT change this value 
+              }
+	    }
+	    if(secNum==4){
+	      if(kin_W(el, eBeam) >= wMinRange4 && kin_W(el, eBeam) <= wMaxRange4){
+		//Sec 4 equation
+		//elecPchange = -0.398951*el.P()+0.0386679;
+		elecPchange = -0.0365319;
+	      }
+	      if(kin_W(el, eBeam) <  wMinRange4 || kin_W(el, eBeam) > wMaxRange4){
+                elecPchange = 0;//Do NOT change this value                                                                                                                                                
+              }
+	    }
+	    if(secNum==5){
+	      if(kin_W(el, eBeam) >= wMinRange5 && kin_W(el, eBeam) <= wMaxRange5){
+		//Sec 5 equation
+		//elecPchange = -0.34597*el.P()+0.0332733;
+		elecPchange = -0.0294641;
+	      }
+	      if(kin_W(el, eBeam) <  wMinRange5 || kin_W(el, eBeam) > wMaxRange5){
+                elecPchange = 0;//Do NOT change this value                                                                                                                                                 
+              }
+	    }
+	    if(secNum==6){
+	      if(kin_W(el, eBeam) >= wMinRange6 && kin_W(el, eBeam) <= wMaxRange6){
+		//Sec 6 equation
+		//elecPchange = -0.0195361*el.P()-0.000207288;
+		elecPchange = -0.0272375;
+	      }
+	      if(kin_W(el, eBeam) <  wMinRange6 || kin_W(el, eBeam) > wMaxRange6){
+                elecPchange = 0;//Do NOT change this value                                                                                                                                                 
+              }
+	    }
+	  }
+
+	  if((el.P()<8 || el.P()>9.8) && EPCorQ==2){
+	    elecPchange = 0;
+	  }
+
+	  elecPCorrected = el.P() - elecPchange;
 	  elCor.SetXYZM(elecPCorrected*TMath::Sin(el.Theta())*TMath::Cos(el.Phi()), elecPCorrected*TMath::Sin(el.Theta())*TMath::Sin(el.Phi()), elecPCorrected*TMath::Cos(el.Theta()), db->GetParticle(11)->Mass());
 
 	  double pred_e_beam_from_angles_cor1 = ((db->GetParticle(2212)->Mass())*elecPCorrected)/((db->GetParticle(2212)->Mass())-elecPCorrected+(elecPCorrected*TMath::Cos(el.Theta())));
@@ -656,13 +721,70 @@ void simpleAnaLC(){
 	    elPcal=eBeam/(1+((2*eBeam*TMath::Sin(el.Theta()/2)*TMath::Sin(el.Theta()/2))/(db->GetParticle(2212)->Mass())));
 
        	    if(el.E() > 0){
-	      if(kin_W(el, eBeam)<1.1){
-		el_p_Measured[secNum-1].push_back(el.P());
-		el_p_Calculated[secNum-1].push_back(elPcal);
-		el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+	      if(secNum == 1){
+		if(kin_W(el, eBeam) >= wMinRange1 && kin_W(el, eBeam) <= wMaxRange1){
+		  el_p_Measured[secNum-1].push_back(el.P());
+		  el_p_Calculated[secNum-1].push_back(elPcal);
+		  el_p_Difference[secNum-1].push_back(el.P()-elPcal); 
+		}
 	      }
-	    }
+	      
+              if(secNum == 2){
+                if(kin_W(el, eBeam) >= wMinRange2 && kin_W(el, eBeam) <= wMaxRange2){
+                  el_p_Measured[secNum-1].push_back(el.P());
+                  el_p_Calculated[secNum-1].push_back(elPcal);
+                  el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+		}
+	      } 
 
+              if(secNum == 3){
+                if(kin_W(el, eBeam) >= wMinRange3 && kin_W(el, eBeam) <= wMaxRange3){
+                  el_p_Measured[secNum-1].push_back(el.P());
+                  el_p_Calculated[secNum-1].push_back(elPcal);
+                  el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+		}
+	      } 
+
+              if(secNum == 4){
+                if(kin_W(el, eBeam) >= wMinRange4 && kin_W(el, eBeam) <= wMaxRange4){
+                  el_p_Measured[secNum-1].push_back(el.P());
+                  el_p_Calculated[secNum-1].push_back(elPcal);
+                  el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+		}
+	      } 
+
+              if(secNum == 5){
+                if(kin_W(el, eBeam) >= wMinRange5 && kin_W(el, eBeam) <= wMaxRange5){
+                  el_p_Measured[secNum-1].push_back(el.P());
+                  el_p_Calculated[secNum-1].push_back(elPcal);
+                  el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+		}
+	      } 
+
+              if(secNum == 6){
+                if(kin_W(el, eBeam) >= wMinRange6 && kin_W(el, eBeam) <= wMaxRange6){
+                  el_p_Measured[secNum-1].push_back(el.P());
+                  el_p_Calculated[secNum-1].push_back(elPcal);
+                  el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+		}
+	      } 
+	      // if(kin_W(el, eBeam)>0.7){
+	      // 	if(secNum != 3){
+	      // 	  if(kin_W(el, eBeam)<1.12){//Was 1.1 as of 9/9/2020
+	      // 	    el_p_Measured[secNum-1].push_back(el.P());
+	      // 	    el_p_Calculated[secNum-1].push_back(elPcal);
+	      // 	    el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+	      // 	  }
+	      // 	}
+	      // 	if(secNum == 3){
+	      // 	  if(kin_W(el, eBeam)<1.05){
+	      // 	    el_p_Measured[secNum-1].push_back(el.P());
+	      // 	    el_p_Calculated[secNum-1].push_back(elPcal);
+	      // 	    el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+	      // 	  }
+	      // 	} 
+	      // }
+	    }
 	
 	    //Below is for BE Theta Ranges
        	    if(kin_Q2(el, eBeam)>=1 && kin_Q2(el, eBeam)<2){
