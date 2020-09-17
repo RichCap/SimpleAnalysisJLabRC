@@ -28,47 +28,50 @@ double PI= 3.14159265358979323846;
 
 //Below are the elastic peak ranges used for the momentum correction calculations (from histobuilderR.C)
 //Sec 1
-double wMinRange1 = 0.802237;
-double wMaxRange1 = 1.15776;
+double wMinRange1 = 0.808727;
+double wMaxRange1 = 1.16873;
 //Sec 2
-double wMinRange2 = 0.812355;
-double wMaxRange2 = 1.14764;
+double wMinRange2 = 0.815302;
+double wMaxRange2 = 1.1753;
 //Sec 3
-double wMinRange3 = 0.78;
-double wMaxRange3 = 1.14;
+double wMinRange3 = 0.774;
+double wMaxRange3 = 1.134;
 //Sec 4
-double wMinRange4 = 0.816648;
-double wMaxRange4 = 1.14335;
+double wMinRange4 = 0.816592;
+double wMaxRange4 = 1.16703;
 //Sec 5
-double wMinRange5 = 0.804375;
+double wMinRange5 = 0.804376;
 double wMaxRange5 = 1.15027;
 //Sec 6
 double wMinRange6 = 0.795966;
 double wMaxRange6 = 1.15597;
 
 
-int helicity;
-double fCup;
-vector<int> sectorE;
-vector<double> p4_ele_px;
-vector<double> p4_ele_py;
-vector<double> p4_ele_pz;
-vector<double> p4_ele_vx;
-vector<double> p4_ele_vy;
-vector<double> p4_ele_vz;
-vector<double> p4_ele_E;
+// int helicity;
+// double fCup;
+// vector<int> sectorE;
+// vector<double> p4_ele_px;
+// vector<double> p4_ele_py;
+// vector<double> p4_ele_pz;
+// vector<double> p4_ele_vx;
+// vector<double> p4_ele_vy;
+// vector<double> p4_ele_vz;
+// vector<double> p4_ele_E;
 
 vector<double> el_p_Measured[6];  
 vector<double> el_p_Calculated[6];
 vector<double> el_p_Difference[6];
 
+//Below was a test that I don't think will work as intended
+//vector<double> wHistoVCal[6];
+
 vector<double> p4_ele_pR[6];
 vector<double> p4_ele_pTh[6];
 vector<double> p4_ele_pPh[6];
 
-TH1F *wHisto = new TH1F("wHisto", "wHisto", 1000, 0, 5);
-TH1F *q2Histo = new TH1F("q2Histo", "q2Histo", 1000, 0, 10);
-TH2F *wq2Histo = new TH2F("wq2Histo", "wq2Histo",  1000, 0, 5,  1000, 0, 10);
+// TH1F *wHisto = new TH1F("wHisto", "wHisto", 1000, 0, 5);
+// TH1F *q2Histo = new TH1F("q2Histo", "q2Histo", 1000, 0, 10);
+// TH2F *wq2Histo = new TH2F("wq2Histo", "wq2Histo",  1000, 0, 5,  1000, 0, 10);
 
 vector<double> wHistoV[7];
 vector<double> q2HistoV[7];
@@ -120,14 +123,14 @@ double kin_Q2(TLorentzVector ele, float Ebeam){
 
 
 
-void fill_output_vector_electron(TLorentzVector el){
-  if(el.E() > 0){
-    p4_ele_px.push_back(el.Px());
-    p4_ele_py.push_back(el.Py());
-    p4_ele_pz.push_back(el.Pz());
-    p4_ele_E.push_back(el.E());
-  }
-}
+// void fill_output_vector_electron(TLorentzVector el){
+//   if(el.E() > 0){
+//     p4_ele_px.push_back(el.Px());
+//     p4_ele_py.push_back(el.Py());
+//     p4_ele_pz.push_back(el.Pz());
+//     p4_ele_E.push_back(el.E());
+//   }
+// }
 
 
 
@@ -219,20 +222,20 @@ void simpleAnaLC(){
 
   out = new TFile(outputFile, "RECREATE");
  
-  TTree out_tree("out_tree","out_tree");
-  out_tree.Branch("helicity", &helicity);
-  out_tree.Branch("fCup", &fCup);
+  // TTree out_tree("out_tree","out_tree");
+  // out_tree.Branch("helicity", &helicity);
+  // out_tree.Branch("fCup", &fCup);
   
-  //electrons
-  out_tree.Branch("sectorE", &sectorE);
-  out_tree.Branch("p4_ele_px", &p4_ele_px);
-  out_tree.Branch("p4_ele_py", &p4_ele_py);
-  out_tree.Branch("p4_ele_pz", &p4_ele_pz);
-  out_tree.Branch("p4_ele_E", &p4_ele_E);
+  // //electrons
+  // out_tree.Branch("sectorE", &sectorE);
+  // out_tree.Branch("p4_ele_px", &p4_ele_px);
+  // out_tree.Branch("p4_ele_py", &p4_ele_py);
+  // out_tree.Branch("p4_ele_pz", &p4_ele_pz);
+  // out_tree.Branch("p4_ele_E", &p4_ele_E);
 
-  out_tree.Branch("p4_ele_vx", &p4_ele_vx);
-  out_tree.Branch("p4_ele_vy", &p4_ele_vy);
-  out_tree.Branch("p4_ele_vz", &p4_ele_vz);
+  // out_tree.Branch("p4_ele_vx", &p4_ele_vx);
+  // out_tree.Branch("p4_ele_vy", &p4_ele_vy);
+  // out_tree.Branch("p4_ele_vz", &p4_ele_vz);
 
 
   TTree out_tree_electron_momentum("out_tree_electron_momentum","out_tree_electron_momentum");
@@ -313,6 +316,7 @@ void simpleAnaLC(){
     out_tree_w_and_q2.Branch(Form("q2HistoV_Sec_%d",i+1),&q2HistoV[i]);
     out_tree_w_and_q2.Branch(Form("wHistoVC_Sec_%d",i+1),&wHistoVC[i]);
     out_tree_w_and_q2.Branch(Form("q2HistoVC_Sec_%d",i+1),&q2HistoVC[i]);
+    //out_tree_w_and_q2.Branch(Form("wHistoVCal_Sec_%d",i+1),&wHistoVCal[i]);
 
     out_tree_w_and_q2_Cor.Branch(Form("wHistoV_Sec_%d_Cor",i+1),&wHistoVCor[i]);
     out_tree_w_and_q2_Cor.Branch(Form("q2HistoV_Sec_%d_Cor",i+1),&q2HistoVCor[i]);
@@ -359,14 +363,14 @@ void simpleAnaLC(){
   double elecPCorrected=0;
 
   while(reader.next()==true){
-    p4_ele_px.clear();
-    p4_ele_py.clear();
-    p4_ele_pz.clear();
-    p4_ele_vx.clear();
-    p4_ele_vy.clear();
-    p4_ele_vz.clear();
-    p4_ele_E.clear();
-    sectorE.clear();
+    // p4_ele_px.clear();
+    // p4_ele_py.clear();
+    // p4_ele_pz.clear();
+    // p4_ele_vx.clear();
+    // p4_ele_vy.clear();
+    // p4_ele_vz.clear();
+    // p4_ele_E.clear();
+    // sectorE.clear();
 
     for(int i=0;i<6;i++){
       el_p_Measured[i].clear();
@@ -390,6 +394,7 @@ void simpleAnaLC(){
       q2HistoVCor[i].clear();
       wHistoVCCor[i].clear();
       q2HistoVCCor[i].clear();
+      //wHistoVCal[i].clear();
     }
     SFvector[6].clear();
     SFmomentumVector[6].clear();
@@ -500,8 +505,8 @@ void simpleAnaLC(){
 	    if(secNum==1){
 	      if(kin_W(el, eBeam) >= wMinRange1 && kin_W(el, eBeam) <= wMaxRange1){
 		//Sec 1 equation
-		//elecPchange = -0.333295*el.P()+0.0313791;
-		elecPchange = -0.0351726;
+		//elecPchange = -0.243138*el.P()+0.0218327;
+		elecPchange = -0.0375;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange1 || kin_W(el, eBeam) > wMaxRange1){
 		elecPchange = 0;//Do NOT change this value
@@ -510,8 +515,8 @@ void simpleAnaLC(){
 	    if(secNum==2){
 	      if(kin_W(el, eBeam) >= wMinRange2 && kin_W(el, eBeam) <= wMaxRange2){
 		//Sec 2 equation
-		//elecPchange = -0.113116*el.P()+0.00789604;
-		elecPchange = -0.0394837;
+		//elecPchange = -0.0914319*el.P()+0.00544523;
+		elecPchange = -0.0375;
 	      }
               if(kin_W(el, eBeam) <  wMinRange2 || kin_W(el, eBeam) > wMaxRange2){
                 elecPchange = 0;//Do NOT change this value
@@ -520,8 +525,8 @@ void simpleAnaLC(){
 	    if(secNum==3){
 	      if(kin_W(el, eBeam) >= wMinRange3 && kin_W(el, eBeam) <= wMaxRange3){
 		//Sec 3 equation
-		//elecPchange = -0.278161*el.P()+0.0319661;
-		elecPchange = 0.018557;
+		//elecPchange = -0.33047*el.P()+0.037676;
+		elecPchange = 0.03;
 	      }
               if(kin_W(el, eBeam) <  wMinRange3 || kin_W(el, eBeam) > wMaxRange3){
                 elecPchange = 0;//Do NOT change this value 
@@ -530,8 +535,8 @@ void simpleAnaLC(){
 	    if(secNum==4){
 	      if(kin_W(el, eBeam) >= wMinRange4 && kin_W(el, eBeam) <= wMaxRange4){
 		//Sec 4 equation
-		//elecPchange = -0.398951*el.P()+0.0386679;
-		elecPchange = -0.0365319;
+		//elecPchange = -0.377814*el.P()+0.0364319;
+		elecPchange = -0.0375;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange4 || kin_W(el, eBeam) > wMaxRange4){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                
@@ -540,8 +545,8 @@ void simpleAnaLC(){
 	    if(secNum==5){
 	      if(kin_W(el, eBeam) >= wMinRange5 && kin_W(el, eBeam) <= wMaxRange5){
 		//Sec 5 equation
-		//elecPchange = -0.34597*el.P()+0.0332733;
-		elecPchange = -0.0294641;
+		//elecPchange = -0.48725*el.P()+0.0481261;
+		elecPchange = -0.0125;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange5 || kin_W(el, eBeam) > wMaxRange5){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                 
@@ -550,8 +555,8 @@ void simpleAnaLC(){
 	    if(secNum==6){
 	      if(kin_W(el, eBeam) >= wMinRange6 && kin_W(el, eBeam) <= wMaxRange6){
 		//Sec 6 equation
-		//elecPchange = -0.0195361*el.P()-0.000207288;
-		elecPchange = -0.0272375;
+		//elecPchange = -0.00272884*el.P()-0.00223618;
+		elecPchange = -0.0125;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange6 || kin_W(el, eBeam) > wMaxRange6){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                 
@@ -669,16 +674,16 @@ void simpleAnaLC(){
 	  }//End of el.P() cut
 
 	  if (el.P() > 1.5){
-       	    fill_output_vector_electron(el);
-       	    sectorE.push_back(PartCalorimeter.getInt("sector", 0));                            
-       	    p4_ele_vx.push_back(PART.getFloat("vx",0));
-       	    p4_ele_vy.push_back(PART.getFloat("vy",0));
-       	    p4_ele_vz.push_back(PART.getFloat("vz",0));
-       	    fCup = EVENT.getFloat("beamCharge", 0);
-       	    helicity = EVENT.getInt("helicity", 0);
-       	    wHisto->Fill(kin_W(el, eBeam));
-       	    q2Histo->Fill(kin_Q2(el, eBeam));
-       	    wq2Histo->Fill(kin_W(el, eBeam), kin_Q2(el, eBeam));
+       	    // fill_output_vector_electron(el);
+       	    // sectorE.push_back(PartCalorimeter.getInt("sector", 0));                            
+       	    // p4_ele_vx.push_back(PART.getFloat("vx",0));
+       	    // p4_ele_vy.push_back(PART.getFloat("vy",0));
+       	    // p4_ele_vz.push_back(PART.getFloat("vz",0));
+       	    // fCup = EVENT.getFloat("beamCharge", 0);
+       	    // helicity = EVENT.getInt("helicity", 0);
+       	    // wHisto->Fill(kin_W(el, eBeam));
+       	    // q2Histo->Fill(kin_Q2(el, eBeam));
+       	    // wq2Histo->Fill(kin_W(el, eBeam), kin_Q2(el, eBeam));
        	    
 	    wHistoV[secNum-1].push_back(kin_W(el, eBeam));
 	    wHistoV[6].push_back(kin_W(el, eBeam));
@@ -692,7 +697,7 @@ void simpleAnaLC(){
             q2HistoVCor[6].push_back(kin_Q2(elCor, eBeam));
 
 	    //Below is the w and q2 with cut
-	    if(kin_W(el, eBeam)<1.2){
+	    if(kin_W(el, eBeam)<1.18){
 	      wHistoVC[secNum-1].push_back(kin_W(el, eBeam));
 	      wHistoVC[6].push_back(kin_W(el, eBeam));
 	      q2HistoVC[secNum-1].push_back(kin_Q2(el, eBeam));
@@ -700,7 +705,7 @@ void simpleAnaLC(){
 	    }
 
             //Below is the w and q2 with cut (for elCor)
-            if(kin_W(elCor, eBeam)<1.2){
+            if(kin_W(elCor, eBeam)<1.18){
               wHistoVCCor[secNum-1].push_back(kin_W(elCor, eBeam));
               wHistoVCCor[6].push_back(kin_W(elCor, eBeam));
               q2HistoVCCor[secNum-1].push_back(kin_Q2(elCor, eBeam));
@@ -719,8 +724,8 @@ void simpleAnaLC(){
 	    //electron momentum calculation
 	    double elPcal;
 	    elPcal=eBeam/(1+((2*eBeam*TMath::Sin(el.Theta()/2)*TMath::Sin(el.Theta()/2))/(db->GetParticle(2212)->Mass())));
-
-       	    if(el.E() > 0){
+	    
+	    if(el.E() > 0){
 	      if(secNum == 1){
 		if(kin_W(el, eBeam) >= wMinRange1 && kin_W(el, eBeam) <= wMaxRange1){
 		  el_p_Measured[secNum-1].push_back(el.P());
@@ -935,7 +940,7 @@ void simpleAnaLC(){
 	  }
     	}
        
-	out_tree.Fill();
+	//out_tree.Fill();
 	out_tree_electron_momentum.Fill();
 	out_tree_p_Polar.Fill();
 	out_tree_wHisto_Range_All.Fill();
@@ -964,11 +969,11 @@ void simpleAnaLC(){
   out->Write();
   gBenchmark->Stop("timer");
   gBenchmark->Print("timer");
-  out->mkdir("Example");
-  out->cd("Example");
-  wHisto->Write();
-  q2Histo->Write();
-  wq2Histo->Write();
+  // out->mkdir("Example");
+  // out->cd("Example");
+  // wHisto->Write();
+  // q2Histo->Write();
+  // wq2Histo->Write();
 
   out->mkdir("w and q2 analysis");
   out->cd("w and q2 analysis");

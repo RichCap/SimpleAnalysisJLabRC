@@ -103,7 +103,8 @@ void histobuilderR(){
 
   TH1F *wHisto_sC[6];
   for(int i=0;i<6;i++){
-    wHisto_sC[i] = new TH1F(Form("wHisto_s%dC",i+1),Form("wHisto_s%dC",i+1), 240, 0, 1.2);
+    //wHisto_sC[i] = new TH1F(Form("wHisto_s%dC",i+1),Form("wHisto_s%dC",i+1), 240, 0, 1.2);
+    wHisto_sC[i] = new TH1F(Form("wHisto_s%dC",i+1),Form("wHisto_s%dC",i+1), 236, 0, 1.18);
   }
 
 
@@ -195,7 +196,8 @@ void histobuilderR(){
     fitT2[i]->SetParameter(1,0.97);
     fitT2[i]->SetParLimits(1,0.96,0.98);
     fitT2[i]->SetParameter(2,0.07);
-    fitT2[i]->SetParLimits(2,0.06,0.09);
+    //fitT2[i]->SetParLimits(2,0.06,0.09);
+    fitT2[i]->SetParLimits(2,0.04,0.11);
     fitT2[i]->SetParameter(3,0);
     fitT2[i]->SetParLimits(4,-10,80);
     fitT2[i]->SetParLimits(5,-100,-20);
@@ -218,8 +220,8 @@ void histobuilderR(){
     fitC[i] = new TF1(Form("fitC_sec_%d",i+1),"[Amp]*exp(-0.5*((x-[peak])/[sigma])*((x-[peak])/[sigma]))",-0.3,0.3);
     fitC[i]->SetParameter(1,0);
     fitC[i]->SetParLimits(1,-1,1);
-    fitC[i]->SetParameter(2,0.4);
-    fitC[i]->SetParLimits(2,-1,1);
+    fitC[i]->SetParameter(2,0.2);
+    fitC[i]->SetParLimits(2,0,0.2);
   }
   
 
@@ -307,8 +309,10 @@ void histobuilderR(){
     elecPCor->cd(i+1);
     electron_momentum->Draw(Form("el_p_Difference_Sec_%d>> elPCor_s%d",i+1,i+1));
     ePdMax[i] = elPCor_s[i]->GetXaxis()->GetBinCenter(elPCor_s[i]->GetMaximumBin());
-    fitC[i]->SetParameter(0,elPCor_s[i]->GetMaximumBin());
+    fitC[i]->SetParameter(0,elPCor_s[i]->GetBinContent(elPCor_s[i]->GetMaximumBin()));
+    fitC[i]->SetParLimits(0,(elPCor_s[i]->GetBinContent(elPCor_s[i]->GetMaximumBin()))*0.8,(elPCor_s[i]->GetBinContent(elPCor_s[i]->GetMaximumBin()))*1.2);
     fitC[i]->SetParameter(1,ePdMax[i]);
+    fitC[i]->SetParLimits(1,ePdMax[i]*0.8,ePdMax[i]*1.2);
     elPCor_s[i]->Fit(Form("fitC_sec_%d",i+1));
     gStyle->SetOptFit(1111111);
   }
@@ -686,8 +690,8 @@ void histobuilderR(){
   for(int i=0;i<6;i++){
     wHVsecs->cd(i+1);
     w_and_q2->Draw(Form("wHistoV_Sec_%d>> wHisto_s%d",i+1,i+1));
-    wHisto_s[i]->Fit(Form("fitT2_sec_%d",i+1),"R",0,1.2);
-    gStyle->SetOptFit(1111111);
+    //wHisto_s[i]->Fit(Form("fitT2_sec_%d",i+1),"R",0,1.2);
+    //gStyle->SetOptFit(1111111);
   }
 
   std::cout<<"wHVsecs Done"<<std::endl;
@@ -699,7 +703,14 @@ void histobuilderR(){
   for(int i=0;i<6;i++){
     wHVsecsC->cd(i+1);
     w_and_q2->Draw(Form("wHistoVC_Sec_%d>> wHisto_s%dC",i+1,i+1));
-    wHisto_sC[i]->Fit(Form("fitT2_sec_%d",i+1),"R",0,1.2);
+
+    fitT2[i]->SetParameter(0,wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()));
+    fitT2[i]->SetParLimits(0,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*0.9,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*1.1);
+    fitT2[i]->SetParameter(1,wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()));
+    fitT2[i]->SetParLimits(1,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*0.9,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*1.1);
+    //Work in progess
+
+    wHisto_sC[i]->Fit(Form("fitT2_sec_%d",i+1),"R",0,1.18);
     gStyle->SetOptFit(1111111);
   }
 

@@ -1,15 +1,18 @@
 # SimpleAnalysisJLabRC
-This is the notes on my code for analyzing the hipo file data
+
+
+These are the notes on my code for analyzing the hipo file data
 
 
 Most Recent Changes:
-* simpleAnaLC.C and histobuilderR.C now work together to produce new histograms with the momentum change equations (working but may be subject to further improvements)
 * elecPCal3 has not been updated along with elecPCal2 (ignore the projections of this histogram until further developments are made)
 * q2 and w vs q2 histograms have been added to histobuilderR.C 
 * wHisto is now also fit sector-by-sector (additional fits and histograms have been added to do this)
 * Fits have been added to elecPCor to find peak change based off gaussian fit
 * Range for defining elastic events for momentum correction calculations has been updated to be based on the new wHisto fits
 * Momentum corrections now are only applied to elastic events rather than to all events
+* Improvements made to the wHisto fits (for elastic events) and to the elecPCor fits
+* Removed some unused data from test#.root (specifically the data in "out_tree" and the example histograms that histobuilderR.C is now responsible for making)
 
 Instructions on running:
 
