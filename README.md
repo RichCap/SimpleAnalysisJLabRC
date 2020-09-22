@@ -6,13 +6,14 @@ These are the notes on my code for analyzing the hipo file data
 
 Most Recent Changes:
 * elecPCal3 has not been updated along with elecPCal2 (ignore the projections of this histogram until further developments are made)
-* q2 and w vs q2 histograms have been added to histobuilderR.C 
 * wHisto is now also fit sector-by-sector (additional fits and histograms have been added to do this)
 * Fits have been added to elecPCor to find peak change based off gaussian fit
 * Range for defining elastic events for momentum correction calculations has been updated to be based on the new wHisto fits
 * Momentum corrections now are only applied to elastic events rather than to all events
 * Improvements made to the wHisto fits (for elastic events) and to the elecPCor fits
-* Removed some unused data from test#.root (specifically the data in "out_tree" and the example histograms that histobuilderR.C is now responsible for making)
+* Minor visual improvements to the graphs have been made
+* Background function was removed from the gaussian fits for the wHisto graphs
+* Beginning to develop second round of momentum corrections (Work-in-Progress)
 
 Instructions on running:
 

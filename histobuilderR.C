@@ -94,7 +94,8 @@ void histobuilderR(){
   }
 
   TH1F *wHisto_all = new TH1F("wHisto_all","wHisto_all", 1000, 0, 5);
-  TH1F *wHistoC_all = new TH1F("wHistoC_all","wHistoC_all", 240, 0, 1.2);
+  //TH1F *wHistoC_all = new TH1F("wHistoC_all","wHistoC_all", 240, 0, 1.2);
+  TH1F *wHistoC_all = new TH1F("wHistoC_all","wHistoC_all", 236, 0, 1.18); 
 
   TH1F *wHisto_s[6];
   for(int i=0;i<6;i++){
@@ -156,8 +157,10 @@ void histobuilderR(){
   TH1F *wHistoC_all_Cor = new TH1F("wHistoC_all_Cor","wHistoC_all_Cor", 240, 0, 1.2);
 
   TH1F *wHisto_s_Cor[6];
+  TH1F *wHisto_s_CorC[6];
   for(int i=0;i<6;i++){
     wHisto_s_Cor[i] = new TH1F(Form("wHisto_s%d_Cor",i+1),Form("wHisto_s%d_Cor",i+1), 1000, 0, 5);
+    wHisto_s_CorC[i] = new TH1F(Form("wHisto_s%d_CorC",i+1),Form("wHisto_s%d_CorC",i+1), 236, 0, 1.18);
   }
 
   TH2F *SFHCor = new TH2F("SFHCor", "Corrected Sampling Fraction versus Momentum Histogram (Made from vectors)", 600, 0, 12,  50, 0, 0.5);
@@ -174,8 +177,8 @@ void histobuilderR(){
   ///// Making fits for histograms ///////
 
   
-  
-  //TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x",0,1.2);
+
+  //Main fit with background
   TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.1);
   
   fitT->SetParameter(0,1512);
@@ -188,9 +191,39 @@ void histobuilderR(){
   fitT->SetParLimits(4,-10,80);
   fitT->SetParLimits(5,-100,-20);
 
+
+  // //Main fit without background    
+  // TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))",0,1.1);
+
+  // fitT->SetParameter(0,1512);
+  // fitT->SetParLimits(0,1480,1600);
+  // fitT->SetParameter(1,0.97);
+  // fitT->SetParLimits(1,0.96,0.98);
+  // fitT->SetParameter(2,0.07);
+  // fitT->SetParLimits(2,0.06,0.09);
+
+
+  // //Main sec fit with background
+  // TF1 *fitT2[6];
+  // for(int i=0;i<6;i++){
+  //   fitT2[i] = new TF1(Form("fitT2_sec_%d",i+1),"[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.1);
+  //   fitT2[i]->SetParameter(0,300);
+  //   fitT2[i]->SetParLimits(0,150,450);
+  //   fitT2[i]->SetParameter(1,0.97);
+  //   fitT2[i]->SetParLimits(1,0.96,0.98);
+  //   fitT2[i]->SetParameter(2,0.07);
+  //   //fitT2[i]->SetParLimits(2,0.06,0.09);
+  //   fitT2[i]->SetParLimits(2,0.04,0.11);
+  //   fitT2[i]->SetParameter(3,0);
+  //   fitT2[i]->SetParLimits(4,-10,80);
+  //   fitT2[i]->SetParLimits(5,-100,-20);
+  // }
+
+
+  //Main sec fit without background
   TF1 *fitT2[6];
   for(int i=0;i<6;i++){
-    fitT2[i] = new TF1(Form("fitT2_sec_%d",i+1),"[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.1);
+    fitT2[i] = new TF1(Form("fitT2_sec_%d",i+1),"[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))",0,1.1);
     fitT2[i]->SetParameter(0,300);
     fitT2[i]->SetParLimits(0,150,450);
     fitT2[i]->SetParameter(1,0.97);
@@ -198,9 +231,6 @@ void histobuilderR(){
     fitT2[i]->SetParameter(2,0.07);
     //fitT2[i]->SetParLimits(2,0.06,0.09);
     fitT2[i]->SetParLimits(2,0.04,0.11);
-    fitT2[i]->SetParameter(3,0);
-    fitT2[i]->SetParLimits(4,-10,80);
-    fitT2[i]->SetParLimits(5,-100,-20);
   }
   
   TF1 *fitG[6][6];
@@ -704,11 +734,15 @@ void histobuilderR(){
     wHVsecsC->cd(i+1);
     w_and_q2->Draw(Form("wHistoVC_Sec_%d>> wHisto_s%dC",i+1,i+1));
 
-    fitT2[i]->SetParameter(0,wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()));
-    fitT2[i]->SetParLimits(0,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*0.9,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*1.1);
-    fitT2[i]->SetParameter(1,wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()));
-    fitT2[i]->SetParLimits(1,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*0.9,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*1.1);
+    // fitT2[i]->SetParameter(0,wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()));
+    // fitT2[i]->SetParLimits(0,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*0.9,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*1.1);
+    // fitT2[i]->SetParameter(1,wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()));
+    // fitT2[i]->SetParLimits(1,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*0.9,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*1.1);
     //Work in progess
+    fitT2[i]->SetParameter(0,wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()));
+    fitT2[i]->SetParLimits(0,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*0.95,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*1.05);
+    fitT2[i]->SetParameter(1,wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()));
+    fitT2[i]->SetParLimits(1,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*0.95,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*1.05);
 
     wHisto_sC[i]->Fit(Form("fitT2_sec_%d",i+1),"R",0,1.18);
     gStyle->SetOptFit(1111111);
@@ -749,6 +783,16 @@ void histobuilderR(){
 
   std::cout<<"wHVsecsCor Done"<<std::endl;
 
+
+
+  TCanvas *wHVsecsCorC = new TCanvas("wHVsecsCorC","wHistoC Corrected (by sector)",200,10,700,780);
+  wHVsecsCorC->Divide(3,2);
+  for(int i=0;i<6;i++){
+    wHVsecsCorC->cd(i+1);
+    w_and_q2_Cor->Draw(Form("wHistoVC_Sec_%d_Cor>> wHisto_s%d_CorC",i+1,i+1));
+  }
+
+  std::cout<<"wHVsecsCorC Done"<<std::endl;
 
 
 

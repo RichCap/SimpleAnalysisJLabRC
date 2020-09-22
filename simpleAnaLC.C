@@ -28,23 +28,23 @@ double PI= 3.14159265358979323846;
 
 //Below are the elastic peak ranges used for the momentum correction calculations (from histobuilderR.C)
 //Sec 1
-double wMinRange1 = 0.808727;
-double wMaxRange1 = 1.16873;
+double wMinRange1 = 0.808545;
+double wMaxRange1 = 1.16771;
 //Sec 2
-double wMinRange2 = 0.815302;
-double wMaxRange2 = 1.1753;
+double wMinRange2 = 0.818762;
+double wMaxRange2 = 1.16717;
 //Sec 3
-double wMinRange3 = 0.774;
-double wMaxRange3 = 1.134;
+double wMinRange3 = 0.726834;
+double wMaxRange3 = 1.16683;
 //Sec 4
-double wMinRange4 = 0.816592;
-double wMaxRange4 = 1.16703;
+double wMinRange4 = 0.8194;
+double wMaxRange4 = 1.15807;
 //Sec 5
-double wMinRange5 = 0.804376;
-double wMaxRange5 = 1.15027;
+double wMinRange5 = 0.811186;
+double wMaxRange5 = 1.13611;
 //Sec 6
-double wMinRange6 = 0.795966;
-double wMaxRange6 = 1.15597;
+double wMinRange6 = 0.795192;
+double wMaxRange6 = 1.15301;
 
 
 // int helicity;
@@ -61,6 +61,9 @@ double wMaxRange6 = 1.15597;
 vector<double> el_p_Measured[6];  
 vector<double> el_p_Calculated[6];
 vector<double> el_p_Difference[6];
+
+vector<double> el_p_Calculated2[6];
+vector<double> el_p_Difference2[6];
 
 //Below was a test that I don't think will work as intended
 //vector<double> wHistoVCal[6];
@@ -243,6 +246,9 @@ void simpleAnaLC(){
     out_tree_electron_momentum.Branch(Form("el_p_Measured_Sec_%d",i+1),&el_p_Measured[i]);
     out_tree_electron_momentum.Branch(Form("el_p_Calculated_Sec_%d",i+1),&el_p_Calculated[i]);
     out_tree_electron_momentum.Branch(Form("el_p_Difference_Sec_%d",i+1),&el_p_Difference[i]);
+
+    out_tree_electron_momentum.Branch(Form("el_p_Calculated2_Sec_%d",i+1),&el_p_Calculated2[i]);
+    out_tree_electron_momentum.Branch(Form("el_p_Difference2_Sec_%d",i+1),&el_p_Difference2[i]);
   }
 
 
@@ -376,6 +382,9 @@ void simpleAnaLC(){
       el_p_Measured[i].clear();
       el_p_Calculated[i].clear();
       el_p_Difference[i].clear();
+
+      el_p_Calculated2[i].clear();
+      el_p_Difference2[i].clear();
 
       p4_ele_pR[i].clear();
       p4_ele_pTh[i].clear();
@@ -710,7 +719,7 @@ void simpleAnaLC(){
               wHistoVCCor[6].push_back(kin_W(elCor, eBeam));
               q2HistoVCCor[secNum-1].push_back(kin_Q2(elCor, eBeam));
               q2HistoVCCor[6].push_back(kin_Q2(elCor, eBeam));
-            }
+           }
 
        	    p4_ele_pR[secNum-1].push_back(el.P());
        	    p4_ele_pTh[secNum-1].push_back(el.Theta()*180/PI);
@@ -731,6 +740,9 @@ void simpleAnaLC(){
 		  el_p_Measured[secNum-1].push_back(el.P());
 		  el_p_Calculated[secNum-1].push_back(elPcal);
 		  el_p_Difference[secNum-1].push_back(el.P()-elPcal); 
+
+		  el_p_Calculated2[secNum-1].push_back(elCor.P());
+		  el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
 		}
 	      }
 	      
@@ -739,6 +751,9 @@ void simpleAnaLC(){
                   el_p_Measured[secNum-1].push_back(el.P());
                   el_p_Calculated[secNum-1].push_back(elPcal);
                   el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+
+                  el_p_Calculated2[secNum-1].push_back(elCor.P());
+                  el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
 		}
 	      } 
 
@@ -747,6 +762,9 @@ void simpleAnaLC(){
                   el_p_Measured[secNum-1].push_back(el.P());
                   el_p_Calculated[secNum-1].push_back(elPcal);
                   el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+
+                  el_p_Calculated2[secNum-1].push_back(elCor.P());
+                  el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
 		}
 	      } 
 
@@ -755,6 +773,9 @@ void simpleAnaLC(){
                   el_p_Measured[secNum-1].push_back(el.P());
                   el_p_Calculated[secNum-1].push_back(elPcal);
                   el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+
+                  el_p_Calculated2[secNum-1].push_back(elCor.P());
+                  el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
 		}
 	      } 
 
@@ -763,6 +784,9 @@ void simpleAnaLC(){
                   el_p_Measured[secNum-1].push_back(el.P());
                   el_p_Calculated[secNum-1].push_back(elPcal);
                   el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+
+                  el_p_Calculated2[secNum-1].push_back(elCor.P());
+                  el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
 		}
 	      } 
 
@@ -771,6 +795,9 @@ void simpleAnaLC(){
                   el_p_Measured[secNum-1].push_back(el.P());
                   el_p_Calculated[secNum-1].push_back(elPcal);
                   el_p_Difference[secNum-1].push_back(el.P()-elPcal);
+
+                  el_p_Calculated2[secNum-1].push_back(elCor.P());
+                  el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
 		}
 	      } 
 	      // if(kin_W(el, eBeam)>0.7){
