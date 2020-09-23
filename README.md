@@ -14,6 +14,7 @@ Most Recent Changes:
 * Minor visual improvements to the graphs have been made
 * Background function was removed from the gaussian fits for the wHisto graphs
 * Beginning to develop second round of momentum corrections (Work-in-Progress)
+* Commented out elecPCal3 after trying to update it due to crashes
 
 Instructions on running:
 

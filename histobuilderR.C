@@ -142,15 +142,32 @@ void histobuilderR(){
   TH1F *elPM_s[6];
   TH1F *elPCal_s[6];
   TH1F *elPCor_s[6];
+
+  TH1F *elP2Cal_s[6];
+  TH1F *elP2Cor_s[6];
+
   TH2F *elPCor2_s[6];
   TH2F *elPCor3_s[6];
+
+  TH2F *elP2Cor2_s[6];
+  TH2F *elP2Cor3_s[6];
+
   for(int i=0;i<6;i++){
     //elPCor_s[i] = new TH1F(Form("elPCor_s%d",i+1),Form("Change in Electron Momentum (Sec %d)",i+1), 80, -1, 1);
     elPCor_s[i] = new TH1F(Form("elPCor_s%d",i+1),Form("Change in Electron Momentum (Sec %d)",i+1), 32, -0.4, 0.4);
     elPCal_s[i] = new TH1F(Form("elPCal_s%d",i+1),Form("Calculated Electron Momentum (Sec %d)",i+1), 240, 0, 12);
     elPM_s[i] = new TH1F(Form("elPM_s%d",i+1),Form("Measured Electron Momentum (Sec %d)",i+1), 240, 0, 12);
-    elPCor2_s[i] = new TH2F(Form("elPCor2_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.6);
-    elPCor3_s[i] = new TH2F(Form("elPCor3_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.6);
+    elPCor2_s[i] = new TH2F(Form("elPCor2_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.3);
+    elPCor3_s[i] = new TH2F(Form("elPCor3_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.3);
+
+    // elPCor2_s[i] = new TH2F(Form("elPCor2_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.6);
+    // elPCor3_s[i] = new TH2F(Form("elPCor3_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.6);
+
+    elP2Cor_s[i] = new TH1F(Form("elP2Cor_s%d",i+1),Form("(Second) Change in Electron Momentum (Sec %d)",i+1), 32, -0.4, 0.4);
+    elP2Cal_s[i] = new TH1F(Form("elP2Cal_s%d",i+1),Form("Corrected Electron Momentum (Sec %d)",i+1), 240, 0, 12);
+
+    elP2Cor2_s[i] = new TH2F(Form("elP2Cor2_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.3);
+    elP2Cor3_s[i] = new TH2F(Form("elP2Cor3_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.3);
   }
 
   TH1F *wHisto_all_Cor = new TH1F("wHisto_all_Cor","wHisto_all_Cor", 1000, 0, 5);
@@ -329,7 +346,6 @@ void histobuilderR(){
   }
 
   std::cout<<"elecPM Done"<<std::endl;
-
 
 
 
@@ -585,111 +601,123 @@ void histobuilderR(){
 
 
 
-  TH1D *projyCor3[6][6];
-  TCanvas *ProjYelecPCor3[6];
-  for(int i=0;i<6;i++){
-    ProjYelecPCor3[i] = new TCanvas(Form("ProjYelecPCor3_s%d",i+1),Form("Y Projection of Difference in Momentum (Cal: Sec %d)",i+1),200,10,700,780);
-    ProjYelecPCor3[i]->Divide(3,2);
-    for(int n=0;n<6;n++){
-      if(n==0){
-        projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),1,8);
-        projyCor3[i][n]->SetTitle("Difference in Momentum for Calculated Range: <6.4 GeV");
-      }
-      if(n>0){
-        projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),n+8,n+9);
-        projyCor3[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range: %4.1f to %4.1f GeV", (0.8*n)+6.4, (0.8*n)+7.2));
-      } 
-      // projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),(2*n)+8,(2*n)+10);
-      // projyCor3[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range: %d to %d GeV", n+4, n+5));
-      projyCor3[i][n]->GetXaxis()->SetTitle("Difference in Momentum (GeV)");
-      ProjYelecPCor3[i]->cd(n+1);
-      projyCor3[i][n]->Draw();
-      ePdcMax[i][n] = projyCor3[i][n]->GetXaxis()->GetBinCenter(projyCor3[i][n]->GetMaximumBin());
-      fitG[i][n]->SetParameter(0,projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()));
-      fitG[i][n]->SetParLimits(0,(projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()))*0.7,(projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()))*1.3);
-      fitG[i][n]->SetParameter(1,ePdcMax[i][n]);
-      if(ePdcMax[i][n]>0){
-	fitG[i][n]->SetParLimits(1,ePdcMax[i][n]*0.7,ePdcMax[i][n]*1.3);
-      }
-      if(ePdcMax[i][n]<0){
-        fitG[i][n]->SetParLimits(1,ePdcMax[i][n]*1.3,ePdcMax[i][n]*0.7);
-      }
-      projyCor3[i][n]->Fit(Form("fitG_sec_%d_reg_%d",i+1,n+1));
-      gStyle->SetOptFit(11111111);
-    }
-  }
+  // TH1D *projyCor3[6][6];
+  // TCanvas *ProjYelecPCor3[6];
+  // for(int i=0;i<6;i++){
+  //   ProjYelecPCor3[i] = new TCanvas(Form("ProjYelecPCor3_s%d",i+1),Form("Y Projection of Difference in Momentum (Cal: Sec %d)",i+1),200,10,700,780);
+  //   ProjYelecPCor3[i]->Divide(3,2);
+  //   for(int n=0;n<6;n++){
+  //     if(n==0){
+  //       //projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),1,8);
+  //       //projyCor3[i][n]->SetTitle("Difference in Momentum for Calculated Range: <6.4 GeV");
+  //       projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),26,30);
+  //       projyCor3[i][n]->SetTitle("Difference in Momentum for Calculated Range: 8 to 9 GeV");
+  //     }
+  //     //if(n>0){                                                                                                                       
+  //     if(n>0 && n<5){
+  //       // projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),n+8,n+9);
+  //       // projyCor3[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range: %4.1f to %4.1f GeV", (0.8*n)+6.4, (0.8*n)+7.2));
+  //       projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),n+30,n+30);
+  //       projyCor3[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range: %4.1f to %4.1f GeV", (0.2*n)+8.8, (0.2*n)+9));
+  //     } 
+  //     // projyCor3[i][n] = elPCor3_s[i]->ProjectionY(Form("projYC%d_Sec_%d",n+1,i+1),(2*n)+8,(2*n)+10);
+  //     // projyCor3[i][n]->SetTitle(Form("Difference in Momentum for Calculated Range: %d to %d GeV", n+4, n+5));
+  //     projyCor3[i][n]->GetXaxis()->SetTitle("Difference in Momentum (GeV)");
+  //     ProjYelecPCor3[i]->cd(n+1);
+  //     projyCor3[i][n]->Draw();
+  //     ePdcMax[i][n] = projyCor3[i][n]->GetXaxis()->GetBinCenter(projyCor3[i][n]->GetMaximumBin());
+  //     fitG[i][n]->SetParameter(0,projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()));
+  //     fitG[i][n]->SetParLimits(0,(projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()))*0.7,(projyCor3[i][n]->GetBinContent(projyCor3[i][n]->GetMaximumBin()))*1.3);
+  //     fitG[i][n]->SetParameter(1,ePdcMax[i][n]);
+  //     if(ePdcMax[i][n]>0){
+  // 	fitG[i][n]->SetParLimits(1,ePdcMax[i][n]*0.7,ePdcMax[i][n]*1.3);
+  //     }
+  //     if(ePdcMax[i][n]<0){
+  //       fitG[i][n]->SetParLimits(1,ePdcMax[i][n]*1.3,ePdcMax[i][n]*0.7);
+  //     }
+  //     projyCor3[i][n]->Fit(Form("fitG_sec_%d_reg_%d",i+1,n+1));
+  //     gStyle->SetOptFit(11111111);
+  //   }
+  // }
 
-  std::cout<<"ProjYelecPCor3 Done"<<std::endl;
+  // std::cout<<"ProjYelecPCor3 Done"<<std::endl;
 
 
 
-  for(int n=0;n<6;n++){
-    ePdcProjPeaks1[n]=fitG[0][n]->GetParameter(1);
-    ePdcProjPeakErrors1[n]=fitG[0][n]->GetParameter(2);
+  // for(int n=0;n<6;n++){
+  //   ePdcProjPeaks1[n]=fitG[0][n]->GetParameter(1);
+  //   //ePdcProjPeakErrors1[n]=fitG[0][n]->GetParameter(2);
+  //   ePdcProjPeakErrors1[n]= TMath::Abs(fitG[0][n]->GetParameter(2));
 
-    ePdcProjPeaks2[n]=fitG[1][n]->GetParameter(1);
-    ePdcProjPeakErrors2[n]=fitG[1][n]->GetParameter(2);
+  //   ePdcProjPeaks2[n]=fitG[1][n]->GetParameter(1);
+  //   //ePdcProjPeakErrors2[n]=fitG[1][n]->GetParameter(2);
+  //   ePdcProjPeakErrors2[n]= TMath::Abs(fitG[1][n]->GetParameter(2));
 
-    ePdcProjPeaks3[n]=fitG[2][n]->GetParameter(1);
-    ePdcProjPeakErrors3[n]=fitG[2][n]->GetParameter(2);
+  //   ePdcProjPeaks3[n]=fitG[2][n]->GetParameter(1);
+  //   //ePdcProjPeakErrors3[n]=fitG[2][n]->GetParameter(2);
+  //   ePdcProjPeakErrors3[n]= TMath::Abs(fitG[2][n]->GetParameter(2));
 
-    ePdcProjPeaks4[n]=fitG[3][n]->GetParameter(1);
-    ePdcProjPeakErrors4[n]=fitG[3][n]->GetParameter(2);
+  //   ePdcProjPeaks4[n]=fitG[3][n]->GetParameter(1);
+  //   //ePdcProjPeakErrors4[n]=fitG[3][n]->GetParameter(2);
+  //   ePdcProjPeakErrors4[n]= TMath::Abs(fitG[3][n]->GetParameter(2));
 
-    ePdcProjPeaks5[n]=fitG[4][n]->GetParameter(1);
-    ePdcProjPeakErrors5[n]=fitG[4][n]->GetParameter(2);
+  //   ePdcProjPeaks5[n]=fitG[4][n]->GetParameter(1);
+  //   //ePdcProjPeakErrors5[n]=fitG[4][n]->GetParameter(2);
+  //   ePdcProjPeakErrors5[n]= TMath::Abs(fitG[4][n]->GetParameter(2));
 
-    ePdcProjPeaks6[n]=fitG[5][n]->GetParameter(1);
-    ePdcProjPeakErrors6[n]=fitG[5][n]->GetParameter(2);
-  }
-  auto eCorEqCs1 = new TGraphErrors(6, XcorBins, ePdcProjPeaks1, XcorBinsError, ePdcProjPeakErrors1);
-  auto eCorEqCs2 = new TGraphErrors(6, XcorBins, ePdcProjPeaks2, XcorBinsError, ePdcProjPeakErrors2);
-  auto eCorEqCs3 = new TGraphErrors(6, XcorBins, ePdcProjPeaks3, XcorBinsError, ePdcProjPeakErrors3);
-  auto eCorEqCs4 = new TGraphErrors(6, XcorBins, ePdcProjPeaks4, XcorBinsError, ePdcProjPeakErrors4);
-  auto eCorEqCs5 = new TGraphErrors(6, XcorBins, ePdcProjPeaks5, XcorBinsError, ePdcProjPeakErrors5);
-  auto eCorEqCs6 = new TGraphErrors(6, XcorBins, ePdcProjPeaks6, XcorBinsError, ePdcProjPeakErrors6);
-  for(int i=0;i<6;i++){
-    elecPCor3->cd(i+1);
-    electron_momentum->Draw(Form("el_p_Difference_Sec_%d:el_p_Calculated_Sec_%d>> elPCor3_s%d",i+1,i+1,i+1),"","colz");   
-    if(i==0){
-      eCorEqCs1->SetMarkerColor(2);
-      eCorEqCs1->SetMarkerStyle(21);
-      eCorEqCs1->Fit("pol1");
-      eCorEqCs1->Draw("same");
-    }
-    if(i==1){
-      eCorEqCs2->SetMarkerColor(2);
-      eCorEqCs2->SetMarkerStyle(21);
-      eCorEqCs2->Fit("pol1");
-      eCorEqCs2->Draw("same");
-    }
-    if(i==2){
-      eCorEqCs3->SetMarkerColor(2);
-      eCorEqCs3->SetMarkerStyle(21);
-      eCorEqCs3->Fit("pol1");
-      eCorEqCs3->Draw("same");
-    }
-    if(i==3){
-      eCorEqCs4->SetMarkerColor(2);
-      eCorEqCs4->SetMarkerStyle(21);
-      eCorEqCs4->Fit("pol1");
-      eCorEqCs4->Draw("same");
-    }
-    if(i==4){
-      eCorEqCs5->SetMarkerColor(2);
-      eCorEqCs5->SetMarkerStyle(21);
-      eCorEqCs5->Fit("pol1");
-      eCorEqCs5->Draw("same");
-    }
-    if(i==5){
-      eCorEqCs6->SetMarkerColor(2);
-      eCorEqCs6->SetMarkerStyle(21);
-      eCorEqCs6->Fit("pol1");
-      eCorEqCs6->Draw("same");
-    }
-  }
+  //   ePdcProjPeaks6[n]=fitG[5][n]->GetParameter(1);
+  //   //ePdcProjPeakErrors6[n]=fitG[5][n]->GetParameter(2);
+  //   ePdcProjPeakErrors6[n]= TMath::Abs(fitG[5][n]->GetParameter(2));
+  // }
+  // auto eCorEqCs1 = new TGraphErrors(5, XcorBins, ePdcProjPeaks1, XcorBinsError, ePdcProjPeakErrors1);
+  // auto eCorEqCs2 = new TGraphErrors(5, XcorBins, ePdcProjPeaks2, XcorBinsError, ePdcProjPeakErrors2);
+  // auto eCorEqCs3 = new TGraphErrors(5, XcorBins, ePdcProjPeaks3, XcorBinsError, ePdcProjPeakErrors3);
+  // auto eCorEqCs4 = new TGraphErrors(5, XcorBins, ePdcProjPeaks4, XcorBinsError, ePdcProjPeakErrors4);
+  // auto eCorEqCs5 = new TGraphErrors(5, XcorBins, ePdcProjPeaks5, XcorBinsError, ePdcProjPeakErrors5);
+  // auto eCorEqCs6 = new TGraphErrors(5, XcorBins, ePdcProjPeaks6, XcorBinsError, ePdcProjPeakErrors6);
+  // for(int i=0;i<6;i++){
+  //   elecPCor3->cd(i+1);
+  //   electron_momentum->Draw(Form("el_p_Difference_Sec_%d:el_p_Calculated_Sec_%d>> elPCor3_s%d",i+1,i+1,i+1),"","colz");   
+  //   if(i==0){
+  //     eCorEqCs1->SetMarkerColor(2);
+  //     eCorEqCs1->SetMarkerStyle(21);
+  //     eCorEqCs1->Fit("pol1");
+  //     eCorEqCs1->Draw("same");
+  //   }
+  //   if(i==1){
+  //     eCorEqCs2->SetMarkerColor(2);
+  //     eCorEqCs2->SetMarkerStyle(21);
+  //     eCorEqCs2->Fit("pol1");
+  //     eCorEqCs2->Draw("same");
+  //   }
+  //   if(i==2){
+  //     eCorEqCs3->SetMarkerColor(2);
+  //     eCorEqCs3->SetMarkerStyle(21);
+  //     eCorEqCs3->Fit("pol1");
+  //     eCorEqCs3->Draw("same");
+  //   }
+  //   if(i==3){
+  //     eCorEqCs4->SetMarkerColor(2);
+  //     eCorEqCs4->SetMarkerStyle(21);
+  //     eCorEqCs4->Fit("pol1");
+  //     eCorEqCs4->Draw("same");
+  //   }
+  //   if(i==4){
+  //     eCorEqCs5->SetMarkerColor(2);
+  //     eCorEqCs5->SetMarkerStyle(21);
+  //     eCorEqCs5->Fit("pol1");
+  //     eCorEqCs5->Draw("same");
+  //   }
+  //   if(i==5){
+  //     eCorEqCs6->SetMarkerColor(2);
+  //     eCorEqCs6->SetMarkerStyle(21);
+  //     eCorEqCs6->Fit("pol1");
+  //     eCorEqCs6->Draw("same");
+  //   }
+  //   gStyle->SetOptFit(11111111);
+  // }
 
-  std::cout<<"elecPCor3 Done"<<std::endl;
+  // std::cout<<"elecPCor3 Done"<<std::endl;
 
 
 
@@ -738,7 +766,7 @@ void histobuilderR(){
     // fitT2[i]->SetParLimits(0,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*0.9,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*1.1);
     // fitT2[i]->SetParameter(1,wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()));
     // fitT2[i]->SetParLimits(1,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*0.9,(wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()))*1.1);
-    //Work in progess
+
     fitT2[i]->SetParameter(0,wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()));
     fitT2[i]->SetParLimits(0,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*0.95,(wHisto_sC[i]->GetBinContent(wHisto_sC[i]->GetMaximumBin()))*1.05);
     fitT2[i]->SetParameter(1,wHisto_sC[i]->GetXaxis()->GetBinCenter(wHisto_sC[i]->GetMaximumBin()));
@@ -799,7 +827,7 @@ void histobuilderR(){
   TCanvas *wHVallCor =new TCanvas("wHVallCor","wHisto (Corrected)",200,10,700,780);
   wHVallCor->cd();
   w_and_q2_Cor->Draw("wHistoVCor>> wHisto_all_Cor");
-  //wHisto_all_Cor->ShowBackground(50,"same");                                                                                                                                                                  
+  //wHisto_all_Cor->ShowBackground(50,"same");     
   wHisto_all_Cor->Fit("fitT","R",0,1.2);
   gStyle->SetOptFit(1111111);
 
@@ -810,7 +838,7 @@ void histobuilderR(){
   TCanvas *wHVall2Cor =new TCanvas("wHVall2Cor","wHisto2 (Corrected)",200,10,700,780);
   wHVall2Cor->cd();
   w_and_q2_Cor->Draw("wHistoVCCor>> wHistoC_all_Cor");
-  //wHisto_all_Cor->ShowBackground(50,"same");                                                                                                                                                                  
+  //wHisto_all_Cor->ShowBackground(50,"same");
   wHistoC_all_Cor->Fit("fitT","R",0,1.1);
   gStyle->SetOptFit(1111111);
 
@@ -915,6 +943,50 @@ void histobuilderR(){
 
 
 
+  TCanvas *elecP2cal = new TCanvas("elecP2cal","(Second) Calculated Electron Momentum",200,10,700,780);
+  elecP2cal->Divide(3,2);
+  for(int i=0;i<6;i++){
+    elecP2cal->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Calculated2_Sec_%d>> elP2Cal_s%d",i+1,i+1));
+  }
+
+  std::cout<<"elecP2cal Done"<<std::endl;
+
+
+
+  TCanvas *elecP2Cor = new TCanvas("elecP2Cor","(Second) Change in Electron Momentum",200,10,700,780);
+  elecP2Cor->Divide(3,2);
+  for(int i=0;i<6;i++){
+    elecP2Cor->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Difference2_Sec_%d>> elP2Cor_s%d",i+1,i+1));
+  }
+
+  std::cout<<"elecP2Cor Done"<<std::endl;
+
+
+
+  TCanvas *elecP2Cor2 = new TCanvas("elecP2Cor2","(Second) Change in Electron Momentum versus Electron Momentum (Measured)",200,10,700,780);
+  elecP2Cor2->Divide(3,2);
+  for(int i=0;i<6;i++){
+    elecP2Cor2->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Difference2_Sec_%d:el_p_Measured_Sec_%d>> elP2Cor2_s%d",i+1,i+1,i+1),"","colz");
+  }
+
+  std::cout<<"elecP2Cor2 Started"<<std::endl;
+
+
+                                                                                     
+  TCanvas *elecP2Cor3 = new TCanvas("elecP2Cor3","(Second) Change in Electron Momentum versus Electron Momentum (Calculated)",200,10,700,780);
+  elecP2Cor3->Divide(3,2);
+  for(int i=0;i<6;i++){
+    elecPCor3->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Difference2_Sec_%d:el_p_Calculated2_Sec_%d>> elP2Cor3_s%d",i+1,i+1,i+1),"","colz");
+  }
+
+  std::cout<<"elecP2Cor3 Started"<<std::endl;
+
+
+
   /////////// Saving Outfile /////////////
   
 
@@ -942,6 +1014,7 @@ void histobuilderR(){
   outH->mkdir("wHistos/Corrected");
   outH->cd("wHistos/Corrected");
   wHVsecsCor->Write();
+  wHVsecsCorC->Write();
   wHVallCor->Write();
   wHVall2Cor->Write();
 
@@ -970,35 +1043,32 @@ void histobuilderR(){
   elecPcal->Write();
   elecPM->Write();
   elecPCor->Write();
-  //elecPCor2->Write();
-  //elecPCor3->Write();
+  elecP2cal->Write();
+  elecP2Cor->Write();
 
-  // outH->mkdir("eMomentum/Projections/Measure");
-  // outH->cd("eMomentum/Projections/Measure");
-  // for(int i=0;i<6;i++){
-  //   ProjYelecPCor2[i]->Write();
-  // }
-
-  outH->mkdir("eMomentum/Projections");                                                                                                                                                          
-  outH->cd("eMomentum/Projections"); 
+  outH->mkdir("eMomentum/Projections1");                                                                                                                                                          
+  outH->cd("eMomentum/Projections1"); 
   elecPCor2->Write();
   elecPCor2JP->Write();
   elecPCor3->Write();
-  //TestSliceFit->Write();
-  //ProjYelecPCor2->Write();
+ 
 
-
-  outH->mkdir("eMomentum/Projections/Measure");
-  outH->cd("eMomentum/Projections/Measure");
+  outH->mkdir("eMomentum/Projections1/Measure");
+  outH->cd("eMomentum/Projections1/Measure");
   for(int i=0;i<6;i++){
     ProjYelecPCor2[i]->Write();
   }
 
-  outH->mkdir("eMomentum/Projections/Cal");
-  outH->cd("eMomentum/Projections/Cal");
-  for(int i=0;i<6;i++){
-    ProjYelecPCor3[i]->Write();
-  }
+  // outH->mkdir("eMomentum/Projections1/Cal");
+  // outH->cd("eMomentum/Projections1/Cal");
+  // for(int i=0;i<6;i++){
+  //   ProjYelecPCor3[i]->Write();
+  // }
+
+  outH->mkdir("eMomentum/Projections2");
+  outH->cd("eMomentum/Projections2");
+  elecP2Cor2->Write();
+  elecP2Cor3->Write();
 
   outH->Close();  
 

@@ -514,8 +514,8 @@ void simpleAnaLC(){
 	    if(secNum==1){
 	      if(kin_W(el, eBeam) >= wMinRange1 && kin_W(el, eBeam) <= wMaxRange1){
 		//Sec 1 equation
-		//elecPchange = -0.243138*el.P()+0.0218327;
-		elecPchange = -0.0375;
+		elecPchange = -0.226514*el.P()+0.0200081;
+		//elecPchange = -0.0375;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange1 || kin_W(el, eBeam) > wMaxRange1){
 		elecPchange = 0;//Do NOT change this value
@@ -524,8 +524,8 @@ void simpleAnaLC(){
 	    if(secNum==2){
 	      if(kin_W(el, eBeam) >= wMinRange2 && kin_W(el, eBeam) <= wMaxRange2){
 		//Sec 2 equation
-		//elecPchange = -0.0914319*el.P()+0.00544523;
-		elecPchange = -0.0375;
+		elecPchange = -0.119186*el.P()+0.00747421;
+		//elecPchange = -0.0375;
 	      }
               if(kin_W(el, eBeam) <  wMinRange2 || kin_W(el, eBeam) > wMaxRange2){
                 elecPchange = 0;//Do NOT change this value
@@ -534,8 +534,8 @@ void simpleAnaLC(){
 	    if(secNum==3){
 	      if(kin_W(el, eBeam) >= wMinRange3 && kin_W(el, eBeam) <= wMaxRange3){
 		//Sec 3 equation
-		//elecPchange = -0.33047*el.P()+0.037676;
-		elecPchange = 0.03;
+		elecPchange = -1.32002*el.P()+0.14146;
+		//elecPchange = 0.03;
 	      }
               if(kin_W(el, eBeam) <  wMinRange3 || kin_W(el, eBeam) > wMaxRange3){
                 elecPchange = 0;//Do NOT change this value 
@@ -544,8 +544,8 @@ void simpleAnaLC(){
 	    if(secNum==4){
 	      if(kin_W(el, eBeam) >= wMinRange4 && kin_W(el, eBeam) <= wMaxRange4){
 		//Sec 4 equation
-		//elecPchange = -0.377814*el.P()+0.0364319;
-		elecPchange = -0.0375;
+		elecPchange = -0.460126*el.P()+0.0456117;
+		//elecPchange = -0.0375;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange4 || kin_W(el, eBeam) > wMaxRange4){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                
@@ -554,8 +554,8 @@ void simpleAnaLC(){
 	    if(secNum==5){
 	      if(kin_W(el, eBeam) >= wMinRange5 && kin_W(el, eBeam) <= wMaxRange5){
 		//Sec 5 equation
-		//elecPchange = -0.48725*el.P()+0.0481261;
-		elecPchange = -0.0125;
+		elecPchange = -0.34675*el.P()+0.0336453;
+		//elecPchange = -0.0125;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange5 || kin_W(el, eBeam) > wMaxRange5){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                 
@@ -564,8 +564,8 @@ void simpleAnaLC(){
 	    if(secNum==6){
 	      if(kin_W(el, eBeam) >= wMinRange6 && kin_W(el, eBeam) <= wMaxRange6){
 		//Sec 6 equation
-		//elecPchange = -0.00272884*el.P()-0.00223618;
-		elecPchange = -0.0125;
+		elecPchange = 0.0988662*el.P()-0.012884;
+		//elecPchange = -0.0125;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange6 || kin_W(el, eBeam) > wMaxRange6){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                 
