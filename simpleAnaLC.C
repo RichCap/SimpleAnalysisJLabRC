@@ -28,35 +28,25 @@ double PI= 3.14159265358979323846;
 
 //Below are the elastic peak ranges used for the momentum correction calculations (from histobuilderR.C)
 //Sec 1
-double wMinRange1 = 0.808545;
-double wMaxRange1 = 1.16771;
+double wMinRange1 = 0.853441;
+double wMaxRange1 = 1.12282;
 //Sec 2
-double wMinRange2 = 0.818762;
-double wMaxRange2 = 1.16717;
+double wMinRange2 = 0.862313;
+double wMaxRange2 = 1.12362;
 //Sec 3
-double wMinRange3 = 0.726834;
-double wMaxRange3 = 1.16683;
+double wMinRange3 = 0.781834;
+double wMaxRange3 = 1.11183;
 //Sec 4
-double wMinRange4 = 0.8194;
-double wMaxRange4 = 1.15807;
+double wMinRange4 = 0.861733;
+double wMaxRange4 = 1.11574;
 //Sec 5
-double wMinRange5 = 0.811186;
-double wMaxRange5 = 1.13611;
+double wMinRange5 = 0.851802;
+double wMaxRange5 = 1.0955;
 //Sec 6
-double wMinRange6 = 0.795192;
-double wMaxRange6 = 1.15301;
+double wMinRange6 = 0.839919;
+double wMaxRange6 = 1.10828;
 
 
-// int helicity;
-// double fCup;
-// vector<int> sectorE;
-// vector<double> p4_ele_px;
-// vector<double> p4_ele_py;
-// vector<double> p4_ele_pz;
-// vector<double> p4_ele_vx;
-// vector<double> p4_ele_vy;
-// vector<double> p4_ele_vz;
-// vector<double> p4_ele_E;
 
 vector<double> el_p_Measured[6];  
 vector<double> el_p_Calculated[6];
@@ -64,17 +54,13 @@ vector<double> el_p_Difference[6];
 
 vector<double> el_p_Calculated2[6];
 vector<double> el_p_Difference2[6];
+vector<double> el_p_Difference3[6];
 
-//Below was a test that I don't think will work as intended
-//vector<double> wHistoVCal[6];
 
 vector<double> p4_ele_pR[6];
 vector<double> p4_ele_pTh[6];
 vector<double> p4_ele_pPh[6];
 
-// TH1F *wHisto = new TH1F("wHisto", "wHisto", 1000, 0, 5);
-// TH1F *q2Histo = new TH1F("q2Histo", "q2Histo", 1000, 0, 10);
-// TH2F *wq2Histo = new TH2F("wq2Histo", "wq2Histo",  1000, 0, 5,  1000, 0, 10);
 
 vector<double> wHistoV[7];
 vector<double> q2HistoV[7];
@@ -223,22 +209,7 @@ void simpleAnaLC(){
   reader.readDictionary(factory);
   TFile *out;
 
-  out = new TFile(outputFile, "RECREATE");
- 
-  // TTree out_tree("out_tree","out_tree");
-  // out_tree.Branch("helicity", &helicity);
-  // out_tree.Branch("fCup", &fCup);
-  
-  // //electrons
-  // out_tree.Branch("sectorE", &sectorE);
-  // out_tree.Branch("p4_ele_px", &p4_ele_px);
-  // out_tree.Branch("p4_ele_py", &p4_ele_py);
-  // out_tree.Branch("p4_ele_pz", &p4_ele_pz);
-  // out_tree.Branch("p4_ele_E", &p4_ele_E);
-
-  // out_tree.Branch("p4_ele_vx", &p4_ele_vx);
-  // out_tree.Branch("p4_ele_vy", &p4_ele_vy);
-  // out_tree.Branch("p4_ele_vz", &p4_ele_vz);
+  out = new TFile(outputFile, "RECREATE"); 
 
 
   TTree out_tree_electron_momentum("out_tree_electron_momentum","out_tree_electron_momentum");
@@ -249,6 +220,7 @@ void simpleAnaLC(){
 
     out_tree_electron_momentum.Branch(Form("el_p_Calculated2_Sec_%d",i+1),&el_p_Calculated2[i]);
     out_tree_electron_momentum.Branch(Form("el_p_Difference2_Sec_%d",i+1),&el_p_Difference2[i]);
+    out_tree_electron_momentum.Branch(Form("el_p_Difference3_Sec_%d",i+1),&el_p_Difference3[i]);
   }
 
 
@@ -369,14 +341,6 @@ void simpleAnaLC(){
   double elecPCorrected=0;
 
   while(reader.next()==true){
-    // p4_ele_px.clear();
-    // p4_ele_py.clear();
-    // p4_ele_pz.clear();
-    // p4_ele_vx.clear();
-    // p4_ele_vy.clear();
-    // p4_ele_vz.clear();
-    // p4_ele_E.clear();
-    // sectorE.clear();
 
     for(int i=0;i<6;i++){
       el_p_Measured[i].clear();
@@ -385,6 +349,7 @@ void simpleAnaLC(){
 
       el_p_Calculated2[i].clear();
       el_p_Difference2[i].clear();
+      el_p_Difference3[i].clear();
 
       p4_ele_pR[i].clear();
       p4_ele_pTh[i].clear();
@@ -514,8 +479,8 @@ void simpleAnaLC(){
 	    if(secNum==1){
 	      if(kin_W(el, eBeam) >= wMinRange1 && kin_W(el, eBeam) <= wMaxRange1){
 		//Sec 1 equation
-		elecPchange = -0.226514*el.P()+0.0200081;
-		//elecPchange = -0.0375;
+		//elecPchange = -0.226514*el.P()+0.0200081;
+		elecPchange = -0.0375;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange1 || kin_W(el, eBeam) > wMaxRange1){
 		elecPchange = 0;//Do NOT change this value
@@ -524,8 +489,8 @@ void simpleAnaLC(){
 	    if(secNum==2){
 	      if(kin_W(el, eBeam) >= wMinRange2 && kin_W(el, eBeam) <= wMaxRange2){
 		//Sec 2 equation
-		elecPchange = -0.119186*el.P()+0.00747421;
-		//elecPchange = -0.0375;
+		//elecPchange = -0.119186*el.P()+0.00747421;
+		elecPchange = -0.0375;
 	      }
               if(kin_W(el, eBeam) <  wMinRange2 || kin_W(el, eBeam) > wMaxRange2){
                 elecPchange = 0;//Do NOT change this value
@@ -534,8 +499,8 @@ void simpleAnaLC(){
 	    if(secNum==3){
 	      if(kin_W(el, eBeam) >= wMinRange3 && kin_W(el, eBeam) <= wMaxRange3){
 		//Sec 3 equation
-		elecPchange = -1.32002*el.P()+0.14146;
-		//elecPchange = 0.03;
+		//elecPchange = -1.32002*el.P()+0.14146;
+		elecPchange = 0.03;
 	      }
               if(kin_W(el, eBeam) <  wMinRange3 || kin_W(el, eBeam) > wMaxRange3){
                 elecPchange = 0;//Do NOT change this value 
@@ -544,8 +509,8 @@ void simpleAnaLC(){
 	    if(secNum==4){
 	      if(kin_W(el, eBeam) >= wMinRange4 && kin_W(el, eBeam) <= wMaxRange4){
 		//Sec 4 equation
-		elecPchange = -0.460126*el.P()+0.0456117;
-		//elecPchange = -0.0375;
+		//elecPchange = -0.460126*el.P()+0.0456117;
+		elecPchange = -0.0375;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange4 || kin_W(el, eBeam) > wMaxRange4){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                
@@ -554,8 +519,8 @@ void simpleAnaLC(){
 	    if(secNum==5){
 	      if(kin_W(el, eBeam) >= wMinRange5 && kin_W(el, eBeam) <= wMaxRange5){
 		//Sec 5 equation
-		elecPchange = -0.34675*el.P()+0.0336453;
-		//elecPchange = -0.0125;
+		//elecPchange = -0.34675*el.P()+0.0336453;
+		elecPchange = -0.0125;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange5 || kin_W(el, eBeam) > wMaxRange5){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                 
@@ -564,8 +529,8 @@ void simpleAnaLC(){
 	    if(secNum==6){
 	      if(kin_W(el, eBeam) >= wMinRange6 && kin_W(el, eBeam) <= wMaxRange6){
 		//Sec 6 equation
-		elecPchange = 0.0988662*el.P()-0.012884;
-		//elecPchange = -0.0125;
+		//elecPchange = 0.0988662*el.P()-0.012884;
+		elecPchange = -0.0125;
 	      }
 	      if(kin_W(el, eBeam) <  wMinRange6 || kin_W(el, eBeam) > wMaxRange6){
                 elecPchange = 0;//Do NOT change this value                                                                                                                                                 
@@ -683,16 +648,6 @@ void simpleAnaLC(){
 	  }//End of el.P() cut
 
 	  if (el.P() > 1.5){
-       	    // fill_output_vector_electron(el);
-       	    // sectorE.push_back(PartCalorimeter.getInt("sector", 0));                            
-       	    // p4_ele_vx.push_back(PART.getFloat("vx",0));
-       	    // p4_ele_vy.push_back(PART.getFloat("vy",0));
-       	    // p4_ele_vz.push_back(PART.getFloat("vz",0));
-       	    // fCup = EVENT.getFloat("beamCharge", 0);
-       	    // helicity = EVENT.getInt("helicity", 0);
-       	    // wHisto->Fill(kin_W(el, eBeam));
-       	    // q2Histo->Fill(kin_Q2(el, eBeam));
-       	    // wq2Histo->Fill(kin_W(el, eBeam), kin_Q2(el, eBeam));
        	    
 	    wHistoV[secNum-1].push_back(kin_W(el, eBeam));
 	    wHistoV[6].push_back(kin_W(el, eBeam));
@@ -706,15 +661,25 @@ void simpleAnaLC(){
             q2HistoVCor[6].push_back(kin_Q2(elCor, eBeam));
 
 	    //Below is the w and q2 with cut
-	    if(kin_W(el, eBeam)<1.18){
-	      wHistoVC[secNum-1].push_back(kin_W(el, eBeam));
-	      wHistoVC[6].push_back(kin_W(el, eBeam));
-	      q2HistoVC[secNum-1].push_back(kin_Q2(el, eBeam));
-	      q2HistoVC[6].push_back(kin_Q2(el, eBeam));
+	    if(kin_W(el, eBeam)<1.17){//was 1.18
+	      if(secNum==3){
+		if(kin_W(el, eBeam)<1.15){
+		  wHistoVC[secNum-1].push_back(kin_W(el, eBeam));
+		  wHistoVC[6].push_back(kin_W(el, eBeam));
+		  q2HistoVC[secNum-1].push_back(kin_Q2(el, eBeam));
+		  q2HistoVC[6].push_back(kin_Q2(el, eBeam));
+		}
+	      }
+	      if(secNum != 3){
+		wHistoVC[secNum-1].push_back(kin_W(el, eBeam));
+		wHistoVC[6].push_back(kin_W(el, eBeam));
+		q2HistoVC[secNum-1].push_back(kin_Q2(el, eBeam));
+		q2HistoVC[6].push_back(kin_Q2(el, eBeam));
+	      }
 	    }
 
             //Below is the w and q2 with cut (for elCor)
-            if(kin_W(elCor, eBeam)<1.18){
+            if(kin_W(elCor, eBeam)<1.17){//was 1.18
               wHistoVCCor[secNum-1].push_back(kin_W(elCor, eBeam));
               wHistoVCCor[6].push_back(kin_W(elCor, eBeam));
               q2HistoVCCor[secNum-1].push_back(kin_Q2(elCor, eBeam));
@@ -743,6 +708,7 @@ void simpleAnaLC(){
 
 		  el_p_Calculated2[secNum-1].push_back(elCor.P());
 		  el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
+		  el_p_Difference3[secNum-1].push_back(elPcal-elCor.P());
 		}
 	      }
 	      
@@ -754,6 +720,7 @@ void simpleAnaLC(){
 
                   el_p_Calculated2[secNum-1].push_back(elCor.P());
                   el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
+                  el_p_Difference3[secNum-1].push_back(elPcal-elCor.P());
 		}
 	      } 
 
@@ -765,6 +732,7 @@ void simpleAnaLC(){
 
                   el_p_Calculated2[secNum-1].push_back(elCor.P());
                   el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
+                  el_p_Difference3[secNum-1].push_back(elPcal-elCor.P());
 		}
 	      } 
 
@@ -776,6 +744,7 @@ void simpleAnaLC(){
 
                   el_p_Calculated2[secNum-1].push_back(elCor.P());
                   el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
+                  el_p_Difference3[secNum-1].push_back(elPcal-elCor.P());
 		}
 	      } 
 
@@ -787,6 +756,7 @@ void simpleAnaLC(){
 
                   el_p_Calculated2[secNum-1].push_back(elCor.P());
                   el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
+                  el_p_Difference3[secNum-1].push_back(elPcal-elCor.P());
 		}
 	      } 
 
@@ -798,24 +768,10 @@ void simpleAnaLC(){
 
                   el_p_Calculated2[secNum-1].push_back(elCor.P());
                   el_p_Difference2[secNum-1].push_back(el.P()-elCor.P());
+                  el_p_Difference3[secNum-1].push_back(elPcal-elCor.P());
 		}
 	      } 
-	      // if(kin_W(el, eBeam)>0.7){
-	      // 	if(secNum != 3){
-	      // 	  if(kin_W(el, eBeam)<1.12){//Was 1.1 as of 9/9/2020
-	      // 	    el_p_Measured[secNum-1].push_back(el.P());
-	      // 	    el_p_Calculated[secNum-1].push_back(elPcal);
-	      // 	    el_p_Difference[secNum-1].push_back(el.P()-elPcal);
-	      // 	  }
-	      // 	}
-	      // 	if(secNum == 3){
-	      // 	  if(kin_W(el, eBeam)<1.05){
-	      // 	    el_p_Measured[secNum-1].push_back(el.P());
-	      // 	    el_p_Calculated[secNum-1].push_back(elPcal);
-	      // 	    el_p_Difference[secNum-1].push_back(el.P()-elPcal);
-	      // 	  }
-	      // 	} 
-	      // }
+
 	    }
 	
 	    //Below is for BE Theta Ranges
@@ -996,11 +952,6 @@ void simpleAnaLC(){
   out->Write();
   gBenchmark->Stop("timer");
   gBenchmark->Print("timer");
-  // out->mkdir("Example");
-  // out->cd("Example");
-  // wHisto->Write();
-  // q2Histo->Write();
-  // wq2Histo->Write();
 
   out->mkdir("w and q2 analysis");
   out->cd("w and q2 analysis");

@@ -95,7 +95,7 @@ void histobuilderR(){
 
   TH1F *wHisto_all = new TH1F("wHisto_all","wHisto_all", 1000, 0, 5);
   //TH1F *wHistoC_all = new TH1F("wHistoC_all","wHistoC_all", 240, 0, 1.2);
-  TH1F *wHistoC_all = new TH1F("wHistoC_all","wHistoC_all", 236, 0, 1.18); 
+  TH1F *wHistoC_all = new TH1F("wHistoC_all","wHistoC_all", 234, 0, 1.17); 
 
   TH1F *wHisto_s[6];
   for(int i=0;i<6;i++){
@@ -105,7 +105,7 @@ void histobuilderR(){
   TH1F *wHisto_sC[6];
   for(int i=0;i<6;i++){
     //wHisto_sC[i] = new TH1F(Form("wHisto_s%dC",i+1),Form("wHisto_s%dC",i+1), 240, 0, 1.2);
-    wHisto_sC[i] = new TH1F(Form("wHisto_s%dC",i+1),Form("wHisto_s%dC",i+1), 236, 0, 1.18);
+    wHisto_sC[i] = new TH1F(Form("wHisto_s%dC",i+1),Form("wHisto_s%dC",i+1), 234, 0, 1.17);
   }
 
 
@@ -151,23 +151,33 @@ void histobuilderR(){
 
   TH2F *elP2Cor2_s[6];
   TH2F *elP2Cor3_s[6];
+  TH2F *elP2Cor4_s[6];
+  TH2F *elP2Cor5_s[6];
+  TH2F *elP2Cor6_s[6];
 
   for(int i=0;i<6;i++){
     //elPCor_s[i] = new TH1F(Form("elPCor_s%d",i+1),Form("Change in Electron Momentum (Sec %d)",i+1), 80, -1, 1);
     elPCor_s[i] = new TH1F(Form("elPCor_s%d",i+1),Form("Change in Electron Momentum (Sec %d)",i+1), 32, -0.4, 0.4);
     elPCal_s[i] = new TH1F(Form("elPCal_s%d",i+1),Form("Calculated Electron Momentum (Sec %d)",i+1), 240, 0, 12);
     elPM_s[i] = new TH1F(Form("elPM_s%d",i+1),Form("Measured Electron Momentum (Sec %d)",i+1), 240, 0, 12);
-    elPCor2_s[i] = new TH2F(Form("elPCor2_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.3);
-    elPCor3_s[i] = new TH2F(Form("elPCor3_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.3);
+    elPCor2_s[i] = new TH2F(Form("elPCor2_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.2, 0.2);
+    elPCor3_s[i] = new TH2F(Form("elPCor3_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.2, 0.2);
 
     // elPCor2_s[i] = new TH2F(Form("elPCor2_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.6);
     // elPCor3_s[i] = new TH2F(Form("elPCor3_s%d",i+1),Form("Change in Electron Momentum vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.6);
 
-    elP2Cor_s[i] = new TH1F(Form("elP2Cor_s%d",i+1),Form("(Second) Change in Electron Momentum (Sec %d)",i+1), 32, -0.4, 0.4);
-    elP2Cal_s[i] = new TH1F(Form("elP2Cal_s%d",i+1),Form("Corrected Electron Momentum (Sec %d)",i+1), 240, 0, 12);
+    elP2Cor_s[i] = new TH1F(Form("elP2Cor_s%d",i+1),Form("(Second) Change in Electron Momentum (Sec %d)",i+1), 80, -0.4, 0.4);
+    elP2Cal_s[i] = new TH1F(Form("elP2Cal_s%d",i+1),Form("Corrected Electron Momentum (Sec %d)",i+1), 300, 0, 15);
 
-    elP2Cor2_s[i] = new TH2F(Form("elP2Cor2_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.3);
-    elP2Cor3_s[i] = new TH2F(Form("elP2Cor3_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 45, 3, 12, 30, -0.3, 0.3);
+    elP2Cor2_s[i] = new TH2F(Form("elP2Cor2_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 60, 3, 12, 100, -0.3, 0.3);
+    elP2Cor3_s[i] = new TH2F(Form("elP2Cor3_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 60, 3, 12, 100, -0.3, 0.3);
+
+    // elP2Cor2_s[i] = new TH2F(Form("elP2Cor2_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 60, 3, 12, 1000, -10, 10);
+    // elP2Cor3_s[i] = new TH2F(Form("elP2Cor3_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 60, 3, 12, 1000, -10, 10);
+
+    elP2Cor4_s[i] = new TH2F(Form("elP2Cor4_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 50, 3, 10.5, 20, -0.2, 0.2);
+    elP2Cor5_s[i] = new TH2F(Form("elP2Cor5_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 50, 3, 10.5, 20, -0.2, 0.2);
+    elP2Cor6_s[i] = new TH2F(Form("elP2Cor6_s%d",i+1),Form("Change in Electron Momentum 2 vs Electron Momentum (Sec %d)",i+1), 50, 3, 10.5, 20, -0.2, 0.2);
   }
 
   TH1F *wHisto_all_Cor = new TH1F("wHisto_all_Cor","wHisto_all_Cor", 1000, 0, 5);
@@ -195,29 +205,29 @@ void histobuilderR(){
 
   
 
-  //Main fit with background
-  TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.1);
+  // //Main fit with background
+  // TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))+[p3]+[p4]*x+[p5]*x*x",0,1.1);
   
-  fitT->SetParameter(0,1512);
-  fitT->SetParLimits(0,1480,1600);
-  fitT->SetParameter(1,0.97);
-  fitT->SetParLimits(1,0.96,0.98);
-  fitT->SetParameter(2,0.07);
-  fitT->SetParLimits(2,0.06,0.09);
-  fitT->SetParameter(3,0);
-  fitT->SetParLimits(4,-10,80);
-  fitT->SetParLimits(5,-100,-20);
-
-
-  // //Main fit without background    
-  // TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))",0,1.1);
-
   // fitT->SetParameter(0,1512);
   // fitT->SetParLimits(0,1480,1600);
   // fitT->SetParameter(1,0.97);
   // fitT->SetParLimits(1,0.96,0.98);
   // fitT->SetParameter(2,0.07);
   // fitT->SetParLimits(2,0.06,0.09);
+  // fitT->SetParameter(3,0);
+  // fitT->SetParLimits(4,-10,80);
+  // fitT->SetParLimits(5,-100,-20);
+
+
+  //Main fit without background    
+  TF1 *fitT = new TF1("fitT","[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))",0,1.1);
+
+  fitT->SetParameter(0,1512);
+  fitT->SetParLimits(0,1480,1600);
+  fitT->SetParameter(1,0.97);
+  fitT->SetParLimits(1,0.96,0.98);
+  fitT->SetParameter(2,0.07);
+  fitT->SetParLimits(2,0.06,0.09);
 
 
   // //Main sec fit with background
@@ -256,8 +266,8 @@ void histobuilderR(){
       fitG[i][n] = new TF1(Form("fitG_sec_%d_reg_%d",i+1,n+1),"[Amp]*exp(-0.5*((x-[peak])/[sigma])*((x-[peak])/[sigma]))",-1,1);
       fitG[i][n]->SetParameter(1,0);
       fitG[i][n]->SetParLimits(1,-1,1);
-      fitG[i][n]->SetParameter(2,0.4);
-      fitG[i][n]->SetParLimits(2,-1,1);
+      fitG[i][n]->SetParameter(2,0.2);
+      fitG[i][n]->SetParLimits(2,0,0.2);
     }
   }
   
@@ -269,6 +279,20 @@ void histobuilderR(){
     fitC[i]->SetParLimits(1,-1,1);
     fitC[i]->SetParameter(2,0.2);
     fitC[i]->SetParLimits(2,0,0.2);
+  }
+
+  //Main corrected sec fit without background
+  TF1 *fitT3[6];
+  for(int i=0;i<6;i++){
+    fitT3[i] = new TF1(Form("fitT3_sec_%d",i+1),"[p0]*exp(-0.5*((x-[p1])/[p2])*((x-[p1])/[p2]))",0.75,1.13);
+    fitT3[i]->SetParameter(0,300);
+    fitT3[i]->SetParLimits(0,150,450);
+    fitT3[i]->SetParameter(1,0.97);
+    //fitT3[i]->SetParLimits(1,0.96,0.98);
+    fitT3[i]->SetParLimits(1,0.95,0.98); 
+    fitT3[i]->SetParameter(2,0.07);
+    //fitT3[i]->SetParLimits(2,0.06,0.09);
+    fitT3[i]->SetParLimits(2,0.04,0.11);
   }
   
 
@@ -321,6 +345,8 @@ void histobuilderR(){
   
   std::cout<<"Making Canvases"<<std::endl;
   
+  gStyle->SetStatX(0.9);                                                                                                                                                                             
+  gStyle->SetStatY(0.9);
 
   TCanvas *elecPcal = new TCanvas("elecPcal","Calculated Electron Momentum",200,10,700,780);
   elecPcal->Divide(3,2);
@@ -356,7 +382,7 @@ void histobuilderR(){
     electron_momentum->Draw(Form("el_p_Difference_Sec_%d>> elPCor_s%d",i+1,i+1));
     ePdMax[i] = elPCor_s[i]->GetXaxis()->GetBinCenter(elPCor_s[i]->GetMaximumBin());
     fitC[i]->SetParameter(0,elPCor_s[i]->GetBinContent(elPCor_s[i]->GetMaximumBin()));
-    fitC[i]->SetParLimits(0,(elPCor_s[i]->GetBinContent(elPCor_s[i]->GetMaximumBin()))*0.8,(elPCor_s[i]->GetBinContent(elPCor_s[i]->GetMaximumBin()))*1.2);
+    fitC[i]->SetParLimits(0,(elPCor_s[i]->GetBinContent(elPCor_s[i]->GetMaximumBin()))*0.9,(elPCor_s[i]->GetBinContent(elPCor_s[i]->GetMaximumBin()))*1.1);
     fitC[i]->SetParameter(1,ePdMax[i]);
     fitC[i]->SetParLimits(1,ePdMax[i]*0.8,ePdMax[i]*1.2);
     elPCor_s[i]->Fit(Form("fitC_sec_%d",i+1));
@@ -758,6 +784,11 @@ void histobuilderR(){
 
   TCanvas *wHVsecsC = new TCanvas("wHVsecsC","wHistoC (by sector)",200,10,700,780);
   wHVsecsC->Divide(3,2);
+
+  //testing                                                                                                                                                                                               
+  gStyle->SetStatX(0.5);                                                                                                                                                                             
+  gStyle->SetStatY(0.9);
+
   for(int i=0;i<6;i++){
     wHVsecsC->cd(i+1);
     w_and_q2->Draw(Form("wHistoVC_Sec_%d>> wHisto_s%dC",i+1,i+1));
@@ -774,11 +805,15 @@ void histobuilderR(){
 
     wHisto_sC[i]->Fit(Form("fitT2_sec_%d",i+1),"R",0,1.18);
     gStyle->SetOptFit(1111111);
+
   }
 
   std::cout<<"wHVsecsC Done"<<std::endl;
 
 
+  //testing
+  gStyle->SetStatX(0.9);
+  gStyle->SetStatY(0.9);
 
   TCanvas *wHVall =new TCanvas("wHVall","wHisto",200,10,700,780);
   wHVall->cd();
@@ -791,6 +826,10 @@ void histobuilderR(){
 
 
 
+  //testing 
+  gStyle->SetStatX(0.5);
+  gStyle->SetStatY(0.9);
+
   TCanvas *wHVall2 =new TCanvas("wHVall2","wHisto2",200,10,700,780);
   wHVall2->cd();
   w_and_q2->Draw("wHistoVC>> wHistoC_all");
@@ -801,6 +840,10 @@ void histobuilderR(){
   std::cout<<"wHVall2 Done"<<std::endl;
 
 
+
+  //testing
+  gStyle->SetStatX(0.9);
+  gStyle->SetStatY(0.9);
 
   TCanvas *wHVsecsCor = new TCanvas("wHVsecsCor","wHisto Corrected (by sector)",200,10,700,780);
   wHVsecsCor->Divide(3,2);
@@ -813,16 +856,31 @@ void histobuilderR(){
 
 
 
+  //testing
+  gStyle->SetStatX(0.5);
+  gStyle->SetStatY(0.9);
+
   TCanvas *wHVsecsCorC = new TCanvas("wHVsecsCorC","wHistoC Corrected (by sector)",200,10,700,780);
   wHVsecsCorC->Divide(3,2);
+  // double WHVsCCR_Lower;
+  // double WHVsCCR_Upper;
   for(int i=0;i<6;i++){
+    //WHVsCCR_Lower=((fitT2[i]->GetParameter(1))-1.5*(fitT2[i]->GetParameter(2)));
+    //WHVsCCR_Upper=((fitT2[i]->GetParameter(1))+1.5*(fitT2[i]->GetParameter(2)));
     wHVsecsCorC->cd(i+1);
     w_and_q2_Cor->Draw(Form("wHistoVC_Sec_%d_Cor>> wHisto_s%d_CorC",i+1,i+1));
+    wHisto_s_CorC[i]->Fit(Form("fitT3_sec_%d",i+1));
+    gStyle->SetOptFit(1111111);
   }
+
 
   std::cout<<"wHVsecsCorC Done"<<std::endl;
 
 
+
+  //testing 
+  gStyle->SetStatX(0.9);
+  gStyle->SetStatY(0.9);
 
   TCanvas *wHVallCor =new TCanvas("wHVallCor","wHisto (Corrected)",200,10,700,780);
   wHVallCor->cd();
@@ -835,6 +893,10 @@ void histobuilderR(){
 
 
 
+  //testing 
+  gStyle->SetStatX(0.5);
+  gStyle->SetStatY(0.9);
+
   TCanvas *wHVall2Cor =new TCanvas("wHVall2Cor","wHisto2 (Corrected)",200,10,700,780);
   wHVall2Cor->cd();
   w_and_q2_Cor->Draw("wHistoVCCor>> wHistoC_all_Cor");
@@ -845,6 +907,10 @@ void histobuilderR(){
   std::cout<<"wHVall2Cor Done"<<std::endl;
 
 
+
+  //testing
+  gStyle->SetStatX(0.9);
+  gStyle->SetStatY(0.9);
 
   TCanvas *SFallCor = new TCanvas("SFallCor","Corrected Sampling Fraction Histogram (All Sectors)",200,10,700,780);
   SFallCor->cd();
@@ -965,7 +1031,7 @@ void histobuilderR(){
 
 
 
-  TCanvas *elecP2Cor2 = new TCanvas("elecP2Cor2","(Second) Change in Electron Momentum versus Electron Momentum (Measured)",200,10,700,780);
+  TCanvas *elecP2Cor2 = new TCanvas("elecP2Cor2","(Second) Change in (Measured) Electron Momentum versus (Measured) Electron Momentum",200,10,700,780);
   elecP2Cor2->Divide(3,2);
   for(int i=0;i<6;i++){
     elecP2Cor2->cd(i+1);
@@ -975,15 +1041,48 @@ void histobuilderR(){
   std::cout<<"elecP2Cor2 Started"<<std::endl;
 
 
-                                                                                     
-  TCanvas *elecP2Cor3 = new TCanvas("elecP2Cor3","(Second) Change in Electron Momentum versus Electron Momentum (Calculated)",200,10,700,780);
+                                   
+  TCanvas *elecP2Cor3 = new TCanvas("elecP2Cor3","(Second) Change in (Measured) Electron Momentum versus (Calculated) Electron Momentum",200,10,700,780);
   elecP2Cor3->Divide(3,2);
   for(int i=0;i<6;i++){
-    elecPCor3->cd(i+1);
+    elecP2Cor3->cd(i+1);
     electron_momentum->Draw(Form("el_p_Difference2_Sec_%d:el_p_Calculated2_Sec_%d>> elP2Cor3_s%d",i+1,i+1,i+1),"","colz");
   }
 
   std::cout<<"elecP2Cor3 Started"<<std::endl;
+
+
+
+  TCanvas *elecP2Cor4 = new TCanvas("elecP2Cor4","(Second) Change in (Calculated) Electron Momentum versus (Measured) Electron Momentum",200,10,700,780);
+  elecP2Cor4->Divide(3,2);
+  for(int i=0;i<6;i++){
+    elecP2Cor4->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Difference3_Sec_%d:el_p_Measured_Sec_%d>> elP2Cor4_s%d",i+1,i+1,i+1),"","colz");
+  }
+
+  std::cout<<"elecP2Cor4 Started"<<std::endl;
+
+
+
+  TCanvas *elecP2Cor5 = new TCanvas("elecP2Cor5","(Second) Change in (Calculated) Electron Momentum versus (Calculated) Electron Momentum",200,10,700,780);
+  elecP2Cor5->Divide(3,2);
+  for(int i=0;i<6;i++){
+    elecP2Cor5->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Difference3_Sec_%d:el_p_Calculated2_Sec_%d>> elP2Cor5_s%d",i+1,i+1,i+1),"","colz");
+  }
+
+  std::cout<<"elecP2Cor5 Started"<<std::endl;
+
+
+
+  TCanvas *elecP2Cor6 = new TCanvas("elecP2Cor6","(Second) Change in (Calculated) Electron Momentum versus (Original Calculated) Electron Momentum",200,10,700,780);
+  elecP2Cor6->Divide(3,2);
+  for(int i=0;i<6;i++){
+    elecP2Cor6->cd(i+1);
+    electron_momentum->Draw(Form("el_p_Difference3_Sec_%d:el_p_Calculated_Sec_%d>> elP2Cor6_s%d",i+1,i+1,i+1),"","colz");
+  }
+
+  std::cout<<"elecP2Cor6 Started"<<std::endl;
 
 
 
@@ -1069,6 +1168,9 @@ void histobuilderR(){
   outH->cd("eMomentum/Projections2");
   elecP2Cor2->Write();
   elecP2Cor3->Write();
+  elecP2Cor4->Write();
+  elecP2Cor5->Write();
+  elecP2Cor6->Write();
 
   outH->Close();  
 
@@ -1102,8 +1204,8 @@ void histobuilderR(){
   std::cout << endl << "Range for elastic scattering by sector (see wHVsecs): "<<endl;
   for(int i=0;i<6;i++){
     std::cout << Form("Sector %d:    peak: ",i+1) << (fitT2[i]->GetParameter(1)) << "      sigma: " << (fitT2[i]->GetParameter(2)) <<endl;
-    std::cout << Form("               double wMinRange%d = ",i+1) << ((fitT2[i]->GetParameter(1))-2*(fitT2[i]->GetParameter(2))) << ";" <<endl;
-    std::cout << Form("               double wMaxRange%d = ",i+1) << ((fitT2[i]->GetParameter(1))+2*(fitT2[i]->GetParameter(2))) << ";" <<endl;
+    std::cout << Form("               double wMinRange%d = ",i+1) << ((fitT2[i]->GetParameter(1))-1.5*(fitT2[i]->GetParameter(2))) << ";" <<endl;
+    std::cout << Form("               double wMaxRange%d = ",i+1) << ((fitT2[i]->GetParameter(1))+1.5*(fitT2[i]->GetParameter(2))) << ";" <<endl;
   }
 
   std::cout << endl << "Peaks of the corrected momentum measurements (see elecPCor): "<<endl;

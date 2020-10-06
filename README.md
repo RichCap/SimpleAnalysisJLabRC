@@ -5,16 +5,15 @@ These are the notes on my code for analyzing the hipo file data
 
 
 Most Recent Changes:
-* elecPCal3 has not been updated along with elecPCal2 (ignore the projections of this histogram until further developments are made)
 * wHisto is now also fit sector-by-sector (additional fits and histograms have been added to do this)
 * Fits have been added to elecPCor to find peak change based off gaussian fit
 * Range for defining elastic events for momentum correction calculations has been updated to be based on the new wHisto fits
 * Momentum corrections now are only applied to elastic events rather than to all events
 * Improvements made to the wHisto fits (for elastic events) and to the elecPCor fits
-* Minor visual improvements to the graphs have been made
+* Several visual improvements to the graphs have been made (ranges of values shown and adjusted statistics panels)
 * Background function was removed from the gaussian fits for the wHisto graphs
-* Beginning to develop second round of momentum corrections (Work-in-Progress)
-* Commented out elecPCal3 after trying to update it due to crashes
+* Developed second round of momentum corrections (several new histograms have been added)
+* Commented out elecPCal3 after trying to update it due to crashes (does not have the same fitting process that elecPCal2 has)
 
 Instructions on running:
 
@@ -41,7 +40,7 @@ Instructions on running:
 	Note 2.2.1: These equation are not functions of the measured momentum but should be accurate for all ranges of momentum
 	Note 2.3.1: simpleAnaLC.C can only use one of these equations at a time. Select one of these equations to use and then copy and paste it into the program (location is the same for either eq)
        *Note 2.3.2: If equations from elecPCor are used, set the variable EPCorQ=1. If equations from elecPCor2 are used, set the variable EPCorQ=2 (Important for defining statistical ranges)
-   Note 3: wMinRange and wMaxRange range are defined at the beginning of simpleAnaLC.C (should remain fairly constant as long as the same original data file is not changes in toConvert.sh)
+   Note 3: wMinRange and wMaxRange range are defined at the beginning of simpleAnaLC.C 
    Note 4: This step is required as histobuilderR.C is not able to edit the existing data recorded by simpleAnaLC.C
    Note 5: This step is a Work in Progress and thus may be heavily subject to changes
 
